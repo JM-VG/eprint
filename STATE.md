@@ -18,6 +18,7 @@ Phase 4 in progress.
 ## Rejections
 | Task id | Attempts | Reasons |
 | --- | --- | --- |
+| P4-02 | 1 | (1) estimate returned a total for DOCX with unknown page_count when a range was given; (2) N segments x 5000 loop DoS, no segment/length cap; (3) isValidRange ignored MAX_PAGES bound |
 
 ## Needs human review
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
