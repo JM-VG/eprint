@@ -63,7 +63,7 @@ Phase 4 in progress.
 ### Phase 4 Jobs (branch phase-4-jobs)
 - [x] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern). (done 2026-09-30)
 - [x] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets. (done 2026-09-30)
-- [ ] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config.
+- [x] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config. (done 2026-09-30)
 - [ ] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code.
 - [ ] P4-05 Photo job form.
 - [ ] P4-06 My Jobs, Job Details with QR, edit and delete while pending via PrintJobPolicy.
