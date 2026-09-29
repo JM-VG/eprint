@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +34,10 @@ Route::middleware('auth')->group(function () {
 
     // Admin-only pages: approvals, staff, prices, settings, reports, payouts.
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        //
+        Route::get('/students', [StudentApprovalController::class, 'index'])->name('students.index');
+        Route::post('/students/{user}/approve', [StudentApprovalController::class, 'approve'])->name('students.approve');
+        Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
+        Route::post('/users/{user}/disable', [StudentApprovalController::class, 'disable'])->name('users.disable');
     });
 });
 
