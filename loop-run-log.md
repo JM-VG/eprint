@@ -17,3 +17,4 @@
 {"run_id":"2026-09-30T09:10:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T09:25:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T09:40:00+08:00","pattern":"e-print-build","duration_s":500,"items_found":1,"actions_taken":2,"escalations":0,"tokens_estimate":40000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T09:55:00+08:00","pattern":"e-print-build","duration_s":700,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
