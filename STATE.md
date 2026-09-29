@@ -16,7 +16,7 @@ Phase 2 in progress.
 | --- | --- | --- |
 
 ## Needs human review
-(none)
+- P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
 
 ## Notes
 - Bootstrap completed 2026-09-30.
@@ -24,6 +24,7 @@ Phase 2 in progress.
 - P1-02 verifier note: print_jobs.user_id cascades on user delete (Breeze self-delete wipes a student's job history; sales survive). gcash_payments.sale_id cascades with its sale. Revisit when policies land (disable accounts instead of deleting).
 - P1-03 verifier note: User role/status/approved_by/must_change_password are mass-assignable; P2 controllers must only pass validated or explicit arrays.
 - P1-04 verifier notes: seeded admin is not must_change_password (consider in P2-05); commission_rate seeded as 0 (admin must set); DEPLOY.md (P7-07) must say APP_ENV=production or DemoSeeder creates accounts with password "password".
+- P2-01 verifier note: Setting cache is flushed via model events only; the P4-01 settings page must save through Setting models, not bulk query updates.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -36,7 +37,7 @@ Phase 2 in progress.
 - [x] P1-05 Layout: role-based sidebar, availability banner placeholder component, flash messages. AC: each role sees only its menu. (done 2026-09-30)
 
 ### Phase 2 Accounts (branch phase-2-accounts)
-- [ ] P2-01 [HUMAN-REVIEW] Student signup with pattern, uppercase, duplicate message, pending status, NewSignup notification.
+- [x] P2-01 [HUMAN-REVIEW] Student signup with pattern, uppercase, duplicate message, pending status, NewSignup notification. (done 2026-09-30)
 - [ ] P2-02 [HUMAN-REVIEW] Login by student_id or username, throttle, status messages, role redirect.
 - [ ] P2-03 [HUMAN-REVIEW] EnsureRole, EnsureApproved, EnsurePasswordChanged middleware, route groups, 403 page.
 - [ ] P2-04 Admin student approval queue: approve, reject with reason, disable, notifications.
