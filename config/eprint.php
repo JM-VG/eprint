@@ -16,4 +16,19 @@ return [
 
     'soffice_path' => env('EPRINT_SOFFICE_PATH', 'soffice'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Admin Account
+    |--------------------------------------------------------------------------
+    |
+    | Used by the AdminSeeder to create the super admin on first seed.
+    | An existing admin is never overwritten by re-seeding.
+    |
+    */
+
+    'admin' => [
+        'username' => env('ADMIN_USERNAME', 'admin'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
 ];

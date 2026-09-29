@@ -4,7 +4,8 @@
 Phase 1
 
 ## Phase status
-Phase 1 in progress.
+Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
+Phase 1 merged (2026-09-30, merged by Claude at the human's request: "i want you to review it yourself ... i give you all permission")
 
 ## High Priority
 (none)
@@ -18,15 +19,20 @@ Phase 1 in progress.
 
 ## Notes
 - Bootstrap completed 2026-09-30.
+- P1-01 verifier note: users.name is still NOT NULL; student signup (P2-01) must fill name or add a migration making it nullable.
+- P1-02 verifier note: print_jobs.user_id cascades on user delete (Breeze self-delete wipes a student's job history; sales survive). gcash_payments.sale_id cascades with its sale. Revisit when policies land (disable accounts instead of deleting).
+- P1-03 verifier note: User role/status/approved_by/must_change_password are mass-assignable; P2 controllers must only pass validated or explicit arrays.
+- P1-04 verifier notes: seeded admin is not must_change_password (consider in P2-05); commission_rate seeded as 0 (admin must set); DEPLOY.md (P7-07) must say APP_ENV=production or DemoSeeder creates accounts with password "password".
+- P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
 
 ### Phase 1 Setup (branch phase-1-setup)
-- [ ] P1-01 Migrations for users changes, locations, station_sessions. AC: migrate:fresh runs; columns match spec.
-- [ ] P1-02 Migrations for services, print_jobs, gcash_payments, sales, walkin_items, commission_payouts, job_logs, settings, announcements, notifications. AC: migrate:fresh runs; foreign keys set.
-- [ ] P1-03 Enums, models, relationships, casts, factories. AC: factory tests create every model with relations.
-- [ ] P1-04 Seeders: 2 locations, admin from ADMIN_USERNAME/ADMIN_PASSWORD, sample services with price 0, default settings. DemoSeeder for local only. AC: db:seed works twice without duplicates.
-- [ ] P1-05 Layout: role-based sidebar, availability banner placeholder component, flash messages. AC: each role sees only its menu.
+- [x] P1-01 Migrations for users changes, locations, station_sessions. AC: migrate:fresh runs; columns match spec. (done 2026-09-30)
+- [x] P1-02 Migrations for services, print_jobs, gcash_payments, sales, walkin_items, commission_payouts, job_logs, settings, announcements, notifications. AC: migrate:fresh runs; foreign keys set. (done 2026-09-30)
+- [x] P1-03 Enums, models, relationships, casts, factories. AC: factory tests create every model with relations. (done 2026-09-30)
+- [x] P1-04 Seeders: 2 locations, admin from ADMIN_USERNAME/ADMIN_PASSWORD, sample services with price 0, default settings. DemoSeeder for local only. AC: db:seed works twice without duplicates. (done 2026-09-30)
+- [x] P1-05 Layout: role-based sidebar, availability banner placeholder component, flash messages. AC: each role sees only its menu. (done 2026-09-30)
 
 ### Phase 2 Accounts (branch phase-2-accounts)
 - [ ] P2-01 [HUMAN-REVIEW] Student signup with pattern, uppercase, duplicate message, pending status, NewSignup notification.
