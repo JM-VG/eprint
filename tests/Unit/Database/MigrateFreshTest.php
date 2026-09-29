@@ -9,6 +9,10 @@ uses(TestCase::class);
 it('runs migrate:fresh without errors', function () {
     expect(Artisan::call('migrate:fresh'))->toBe(0);
     expect(Schema::hasTable('station_sessions'))->toBeTrue();
+
+    foreach (['services', 'print_jobs', 'gcash_payments', 'sales', 'walkin_items', 'commission_payouts', 'job_logs', 'settings', 'announcements', 'notifications'] as $table) {
+        expect(Schema::hasTable($table))->toBeTrue();
+    }
 });
 
 it('rolls every migration back cleanly', function () {
@@ -17,5 +21,7 @@ it('rolls every migration back cleanly', function () {
     expect(Artisan::call('migrate:reset'))->toBe(0);
     expect(Schema::hasTable('users'))->toBeFalse()
         ->and(Schema::hasTable('locations'))->toBeFalse()
-        ->and(Schema::hasTable('station_sessions'))->toBeFalse();
+        ->and(Schema::hasTable('station_sessions'))->toBeFalse()
+        ->and(Schema::hasTable('print_jobs'))->toBeFalse()
+        ->and(Schema::hasTable('sales'))->toBeFalse();
 });

@@ -19,12 +19,13 @@ Phase 1 in progress.
 ## Notes
 - Bootstrap completed 2026-09-30.
 - P1-01 verifier note: users.name is still NOT NULL; student signup (P2-01) must fill name or add a migration making it nullable.
+- P1-02 verifier note: print_jobs.user_id cascades on user delete (Breeze self-delete wipes a student's job history; sales survive). gcash_payments.sale_id cascades with its sale. Revisit when policies land (disable accounts instead of deleting).
 
 ## Task List
 
 ### Phase 1 Setup (branch phase-1-setup)
 - [x] P1-01 Migrations for users changes, locations, station_sessions. AC: migrate:fresh runs; columns match spec. (done 2026-09-30)
-- [ ] P1-02 Migrations for services, print_jobs, gcash_payments, sales, walkin_items, commission_payouts, job_logs, settings, announcements, notifications. AC: migrate:fresh runs; foreign keys set.
+- [x] P1-02 Migrations for services, print_jobs, gcash_payments, sales, walkin_items, commission_payouts, job_logs, settings, announcements, notifications. AC: migrate:fresh runs; foreign keys set. (done 2026-09-30)
 - [ ] P1-03 Enums, models, relationships, casts, factories. AC: factory tests create every model with relations.
 - [ ] P1-04 Seeders: 2 locations, admin from ADMIN_USERNAME/ADMIN_PASSWORD, sample services with price 0, default settings. DemoSeeder for local only. AC: db:seed works twice without duplicates.
 - [ ] P1-05 Layout: role-based sidebar, availability banner placeholder component, flash messages. AC: each role sees only its menu.
