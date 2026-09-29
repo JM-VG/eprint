@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ShiftHistoryController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'));
 
 Route::get('/api/availability', AvailabilityController::class)
-    ->middleware('throttle:60,1')->name('api.availability');
+    ->middleware('throttle:600,1')->name('api.availability');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
@@ -53,6 +54,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/students', [StudentApprovalController::class, 'index'])->name('students.index');
         Route::post('/students/{user}/approve', [StudentApprovalController::class, 'approve'])->name('students.approve');
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
+
+        Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
 
         Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
         Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');

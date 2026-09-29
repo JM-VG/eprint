@@ -56,7 +56,7 @@ Phase 3 in progress.
 - [x] P3-02 Heartbeat endpoint, Clock Out, Switch Location, close on logout. (done 2026-09-30)
 - [x] P3-03 AvailabilityService + CloseIdleStations command scheduled every minute. (done 2026-09-30)
 - [x] P3-04 GET /api/availability + banner with 15 s polling on every page including login. (done 2026-09-30)
-- [ ] P3-05 Admin Shift History with filters.
+- [x] P3-05 Admin Shift History with filters. (done 2026-09-30)
 
 ### Phase 4 Jobs (branch phase-4-jobs)
 - [ ] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern).
