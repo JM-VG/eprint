@@ -52,7 +52,7 @@ Phase 3 in progress.
 - [x] P2-06 Profile page with password change. (done 2026-09-30)
 
 ### Phase 3 Stations (branch phase-3-stations)
-- [ ] P3-01 Clock In page, station_session create, EnsureStation middleware.
+- [x] P3-01 Clock In page, station_session create, EnsureStation middleware. (done 2026-09-30)
 - [ ] P3-02 Heartbeat endpoint, Clock Out, Switch Location, close on logout.
 - [ ] P3-03 AvailabilityService + CloseIdleStations command scheduled every minute.
 - [ ] P3-04 GET /api/availability + banner with 15 s polling on every page including login.

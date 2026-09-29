@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\StationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +31,13 @@ Route::middleware('auth')->group(function () {
 
     // Counter pages for staff; admins do everything staff do. EnsureStation joins in Phase 3.
     Route::middleware('role:staff,admin')->prefix('staff')->name('staff.')->group(function () {
-        //
+        Route::get('/station', [StationController::class, 'show'])->name('station');
+        Route::post('/station', [StationController::class, 'store'])->name('station.store');
+
+        // Job-processing pages go inside this group.
+        Route::middleware('station')->group(function () {
+            //
+        });
     });
 
     // Admin-only pages: approvals, staff, prices, settings, reports, payouts.

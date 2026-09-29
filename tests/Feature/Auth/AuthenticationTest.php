@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 function registerRoleHomes(): void
 {
-    Route::middleware('web')->get('/_test/staff-home', fn () => 'staff home')->name('staff.station');
     Route::middleware('web')->get('/_test/admin-home', fn () => 'admin home')->name('admin.dashboard');
     Route::getRoutes()->refreshNameLookups();
 }
@@ -60,7 +59,7 @@ test('users are redirected to their role home', function (string $state, string 
         ->assertRedirect($path);
 })->with([
     'student' => ['student', '/dashboard'],
-    'staff' => ['staff', '/_test/staff-home'],
+    'staff' => ['staff', '/staff/station'],
     'admin' => ['admin', '/_test/admin-home'],
 ]);
 
@@ -69,7 +68,7 @@ test('role homes fall back to the dashboard until those pages exist', function (
 
     $this->post('/login', ['login' => $user->username, 'password' => 'password'])
         ->assertRedirect(route('dashboard', absolute: false));
-})->with(['staff', 'admin']);
+})->with(['admin']); // staff.station exists since P3-01; see tests/Feature/Staff/ClockInTest.php
 
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
