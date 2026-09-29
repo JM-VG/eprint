@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
+use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
@@ -13,9 +14,10 @@ use Illuminate\Support\Facades\Route;
 | so a disabled account or a temporary password is caught on any page.
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'));
+
+Route::get('/api/availability', AvailabilityController::class)
+    ->middleware('throttle:60,1')->name('api.availability');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
