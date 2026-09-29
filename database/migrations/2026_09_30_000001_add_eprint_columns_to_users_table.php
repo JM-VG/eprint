@@ -29,6 +29,9 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
+     *
+     * email stays nullable: students and staff have no email, so forcing
+     * NOT NULL would fail on real data and, on MySQL, leave a half-rolled-back table.
      */
     public function down(): void
     {
@@ -42,7 +45,6 @@ return new class extends Migration
                 'student_id', 'username', 'first_name', 'last_name', 'role', 'status',
                 'must_change_password', 'approved_at', 'rejection_reason',
             ]);
-            $table->string('email')->nullable(false)->change();
         });
     }
 };
