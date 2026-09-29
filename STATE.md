@@ -18,7 +18,6 @@ Phase 4 in progress.
 ## Rejections
 | Task id | Attempts | Reasons |
 | --- | --- | --- |
-| P4-02 | 1 | (1) estimate returned a total for DOCX with unknown page_count when a range was given; (2) N segments x 5000 loop DoS, no segment/length cap; (3) isValidRange ignored MAX_PAGES bound |
 
 ## Needs human review
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
@@ -63,7 +62,7 @@ Phase 4 in progress.
 
 ### Phase 4 Jobs (branch phase-4-jobs)
 - [x] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern). (done 2026-09-30)
-- [ ] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets.
+- [x] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets. (done 2026-09-30)
 - [ ] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config.
 - [ ] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code.
 - [ ] P4-05 Photo job form.
