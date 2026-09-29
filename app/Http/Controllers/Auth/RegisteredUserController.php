@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\StudentRegisterRequest;
+use App\Services\StudentRegistrationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -24,28 +20,22 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
+     * Register a student. The account stays pending (no session) until an admin approves it.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StudentRegisterRequest $request, StudentRegistrationService $registration): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        $student = $registration->register($request->safe()->only(['student_id', 'first_name', 'last_name', 'password']));
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        event(new Registered($student));
 
-        event(new Registered($user));
+        return redirect()->route('register.pending');
+    }
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+    /**
+     * Waiting page shown after signup.
+     */
+    public function pending(): View
+    {
+        return view('auth.registration-pending');
     }
 }
