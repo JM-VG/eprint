@@ -22,4 +22,20 @@ class UserPolicy
     {
         return $actor->role === Role::Admin && ! $actor->is($target);
     }
+
+    /**
+     * Re-enable any account except your own.
+     */
+    public function enable(User $actor, User $target): bool
+    {
+        return $this->disable($actor, $target);
+    }
+
+    /**
+     * Reset any other account to a temporary password.
+     */
+    public function resetPassword(User $actor, User $target): bool
+    {
+        return $this->disable($actor, $target);
+    }
 }

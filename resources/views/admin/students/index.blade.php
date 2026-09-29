@@ -57,6 +57,14 @@
                                             </form>
                                         @endif
 
+                                        @if ($student->status === \App\Enums\UserStatus::Approved)
+                                            <form method="POST" action="{{ route('admin.users.reset-password', $student) }}"
+                                                  onsubmit="return confirm('Reset this password to a temporary one?')">
+                                                @csrf
+                                                <button class="px-3 py-1.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">{{ __('Reset password') }}</button>
+                                            </form>
+                                        @endif
+
                                         @if ($student->status !== \App\Enums\UserStatus::Disabled)
                                             <form method="POST" action="{{ route('admin.users.disable', $student) }}"
                                                   onsubmit="return confirm('Disable this account?')">

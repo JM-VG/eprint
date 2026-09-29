@@ -19,6 +19,7 @@ Phase 2 in progress.
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
 - P2-02 Login: app/Http/Requests/Auth/LoginRequest.php, app/Http/Controllers/Auth/AuthenticatedSessionController.php, app/Enums/UserStatus.php (message wording), app/Enums/Role.php, tests/Feature/Auth/AuthenticationTest.php
 - P2-03 Middleware: app/Http/Middleware/EnsureRole.php, app/Http/Middleware/EnsureApproved.php, app/Http/Middleware/EnsurePasswordChanged.php (ALLOWED_ROUTES), bootstrap/app.php, routes/web.php, app/Http/Controllers/Auth/PasswordController.php, resources/views/errors/403.blade.php, tests/Feature/Auth/AccessMiddlewareTest.php
+- P2-05 Staff management: app/Http/Requests/Admin/StaffRequest.php, app/Services/StaffAccountService.php, app/Http/Controllers/Admin/UserAccountController.php, app/Http/Controllers/Admin/StaffController.php, app/Policies/UserPolicy.php, app/Services/AccountApprovalService.php, routes/web.php, resources/views/admin/staff/*.blade.php, tests/Feature/Admin/StaffManagementTest.php
 
 ## Notes
 - Bootstrap completed 2026-09-30.
@@ -45,7 +46,7 @@ Phase 2 in progress.
 - [x] P2-02 [HUMAN-REVIEW] Login by student_id or username, throttle, status messages, role redirect. (done 2026-09-30)
 - [x] P2-03 [HUMAN-REVIEW] EnsureRole, EnsureApproved, EnsurePasswordChanged middleware, route groups, 403 page. (done 2026-09-30)
 - [x] P2-04 Admin student approval queue: approve, reject with reason, disable, notifications. (done 2026-09-30)
-- [ ] P2-05 [HUMAN-REVIEW] Admin staff management: create, edit, disable, temporary password reset.
+- [x] P2-05 [HUMAN-REVIEW] Admin staff management: create, edit, disable, temporary password reset. (done 2026-09-30)
 - [ ] P2-06 Profile page with password change.
 
 ### Phase 3 Stations (branch phase-3-stations)

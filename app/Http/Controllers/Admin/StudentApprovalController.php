@@ -49,13 +49,4 @@ class StudentApprovalController extends Controller
 
         return back()->with('success', "{$user->name} ({$user->student_id}) was rejected.");
     }
-
-    public function disable(User $user): RedirectResponse
-    {
-        Gate::authorize('disable', $user);
-
-        $this->approvals->disable($user);
-
-        return back()->with('success', "{$user->name} was disabled.");
-    }
 }

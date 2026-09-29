@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
+use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,7 +39,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/students', [StudentApprovalController::class, 'index'])->name('students.index');
         Route::post('/students/{user}/approve', [StudentApprovalController::class, 'approve'])->name('students.approve');
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
-        Route::post('/users/{user}/disable', [StudentApprovalController::class, 'disable'])->name('users.disable');
+
+        Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');
+        Route::post('/staff', [StaffController::class, 'store'])->name('staff.store');
+        Route::get('/staff/{user}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+        Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+
+        Route::post('/users/{user}/disable', [UserAccountController::class, 'disable'])->name('users.disable');
+        Route::post('/users/{user}/enable', [UserAccountController::class, 'enable'])->name('users.enable');
+        Route::post('/users/{user}/reset-password', [UserAccountController::class, 'resetPassword'])->name('users.reset-password');
     });
 });
 

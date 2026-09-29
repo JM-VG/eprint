@@ -37,4 +37,9 @@ class AccountApprovalService
     {
         $user->forceFill(['status' => UserStatus::Disabled])->save();
     }
+
+    public function enable(User $user): void
+    {
+        $user->forceFill(['status' => UserStatus::Approved])->save();
+    }
 }
