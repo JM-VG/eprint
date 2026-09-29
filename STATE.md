@@ -4,7 +4,8 @@
 Phase 1
 
 ## Phase status
-Phase 1 complete, ready for human review and merge
+Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
+Phase 1 merged (2026-09-30, merged by Claude at the human's request: "i want you to review it yourself ... i give you all permission")
 
 ## High Priority
 (none)
