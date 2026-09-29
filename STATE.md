@@ -47,7 +47,7 @@ Phase 2 in progress.
 - [x] P2-03 [HUMAN-REVIEW] EnsureRole, EnsureApproved, EnsurePasswordChanged middleware, route groups, 403 page. (done 2026-09-30)
 - [x] P2-04 Admin student approval queue: approve, reject with reason, disable, notifications. (done 2026-09-30)
 - [x] P2-05 [HUMAN-REVIEW] Admin staff management: create, edit, disable, temporary password reset. (done 2026-09-30)
-- [ ] P2-06 Profile page with password change.
+- [x] P2-06 Profile page with password change. (done 2026-09-30)
 
 ### Phase 3 Stations (branch phase-3-stations)
 - [ ] P3-01 Clock In page, station_session create, EnsureStation middleware.

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\Role;
+use App\Enums\UserStatus;
 use App\Models\User;
 
 class UserPolicy
@@ -24,11 +25,12 @@ class UserPolicy
     }
 
     /**
-     * Re-enable any account except your own.
+     * Re-enable a disabled account (not your own). Pending and rejected
+     * students go through the approval queue instead.
      */
     public function enable(User $actor, User $target): bool
     {
-        return $this->disable($actor, $target);
+        return $this->disable($actor, $target) && $target->status === UserStatus::Disabled;
     }
 
     /**

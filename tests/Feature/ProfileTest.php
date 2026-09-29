@@ -2,84 +2,75 @@
 
 use App\Models\User;
 
-test('profile page is displayed', function () {
+test('profile page shows the login id, role and password form', function (string $state) {
+    $user = User::factory()->{$state}()->create();
+
+    $this->actingAs($user)
+        ->get('/profile')
+        ->assertOk()
+        ->assertSee($user->student_id ?? $user->username)
+        ->assertSee(ucfirst($user->role->value))
+        ->assertSee('name="first_name"', false)
+        ->assertSee('name="last_name"', false)
+        ->assertSee('name="current_password"', false)
+        ->assertDontSee('name="email"', false);
+})->with(['student', 'staff', 'admin']);
+
+test('names can be updated', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->get('/profile');
-
-    $response->assertOk();
-});
-
-test('profile information can be updated', function () {
-    $user = User::factory()->create();
-
-    $response = $this
-        ->actingAs($user)
-        ->patch('/profile', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-    $response
+    $this->actingAs($user)
+        ->patch('/profile', ['first_name' => 'Ana', 'last_name' => 'Reyes'])
         ->assertSessionHasNoErrors()
         ->assertRedirect('/profile');
 
     $user->refresh();
-
-    $this->assertSame('Test User', $user->name);
-    $this->assertSame('test@example.com', $user->email);
-    $this->assertNull($user->email_verified_at);
+    expect($user->first_name)->toBe('Ana')
+        ->and($user->last_name)->toBe('Reyes')
+        ->and($user->name)->toBe('Ana Reyes');
 });
 
-test('email verification status is unchanged when the email address is unchanged', function () {
+test('names are required', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->patch('/profile', [
-            'name' => 'Test User',
-            'email' => $user->email,
-        ]);
-
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/profile');
-
-    $this->assertNotNull($user->refresh()->email_verified_at);
+    $this->actingAs($user)
+        ->patch('/profile', ['first_name' => '', 'last_name' => ''])
+        ->assertSessionHasErrors(['first_name', 'last_name']);
 });
 
-test('user can delete their account', function () {
-    $user = User::factory()->create();
+test('the profile form cannot change login id, role or status', function () {
+    $user = User::factory()->create(['student_id' => 'MMC2024-00001']);
 
-    $response = $this
-        ->actingAs($user)
-        ->delete('/profile', [
-            'password' => 'password',
-        ]);
+    $this->actingAs($user)->patch('/profile', [
+        'first_name' => 'Ana',
+        'last_name' => 'Reyes',
+        'student_id' => 'MMC2024-99999',
+        'username' => 'admin2',
+        'role' => 'admin',
+        'status' => 'approved',
+        'must_change_password' => true,
+    ]);
 
-    $response
-        ->assertSessionHasNoErrors()
-        ->assertRedirect('/');
-
-    $this->assertGuest();
-    $this->assertNull($user->fresh());
+    $user->refresh();
+    expect($user->student_id)->toBe('MMC2024-00001')
+        ->and($user->username)->toBeNull()
+        ->and($user->role->value)->toBe('student')
+        ->and($user->must_change_password)->toBeFalse();
 });
 
-test('correct password must be provided to delete account', function () {
+test('users with a temporary password see why they are on the profile page', function () {
+    $user = User::factory()->create(['must_change_password' => true]);
+
+    $this->actingAs($user)
+        ->get('/profile')
+        ->assertSee('temporary password');
+});
+
+test('users cannot delete their own account', function () {
     $user = User::factory()->create();
 
-    $response = $this
-        ->actingAs($user)
-        ->from('/profile')
-        ->delete('/profile', [
-            'password' => 'wrong-password',
-        ]);
+    $this->actingAs($user)->get('/profile')->assertDontSee('Delete Account');
+    $this->actingAs($user)->delete('/profile', ['password' => 'password'])->assertMethodNotAllowed();
 
-    $response
-        ->assertSessionHasErrorsIn('userDeletion', 'password')
-        ->assertRedirect('/profile');
-
-    $this->assertNotNull($user->fresh());
+    expect($user->fresh())->not->toBeNull();
 });

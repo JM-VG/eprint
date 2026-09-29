@@ -170,6 +170,14 @@ test('admins can disable and re-enable staff', function () {
     expect($staff->fresh()->status)->toBe(UserStatus::Approved);
 });
 
+test('enable only restores disabled accounts and cannot bypass the approval queue', function (string $state) {
+    $student = User::factory()->{$state}()->create();
+
+    $this->actingAs($this->admin)->post(route('admin.users.enable', $student))->assertForbidden();
+
+    expect($student->fresh()->status->value)->toBe($state);
+})->with(['pending', 'rejected']);
+
 test('admins can reset any other account to a temporary password', function (string $state) {
     $user = User::factory()->{$state}()->create();
 
