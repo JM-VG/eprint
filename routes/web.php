@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\ShiftHistoryController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
+use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\StationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,9 +15,10 @@ use Illuminate\Support\Facades\Route;
 | so a disabled account or a temporary password is caught on any page.
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => redirect()->route(auth()->check() ? 'dashboard' : 'login'));
+
+Route::get('/api/availability', AvailabilityController::class)
+    ->middleware('throttle:600,1')->name('api.availability');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
@@ -23,6 +28,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    Route::post('/api/heartbeat', HeartbeatController::class)
+        ->middleware('role:staff,admin')->name('api.heartbeat');
+
     // Student pages (print and photo jobs) are added in Phase 4.
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         //
@@ -30,7 +38,15 @@ Route::middleware('auth')->group(function () {
 
     // Counter pages for staff; admins do everything staff do. EnsureStation joins in Phase 3.
     Route::middleware('role:staff,admin')->prefix('staff')->name('staff.')->group(function () {
-        //
+        Route::get('/station', [StationController::class, 'show'])->name('station');
+        Route::post('/station', [StationController::class, 'store'])->name('station.store');
+        Route::post('/station/switch', [StationController::class, 'switch'])->name('station.switch');
+        Route::post('/station/clock-out', [StationController::class, 'clockOut'])->name('station.clock-out');
+
+        // Job-processing pages go inside this group.
+        Route::middleware('station')->group(function () {
+            //
+        });
     });
 
     // Admin-only pages: approvals, staff, prices, settings, reports, payouts.
@@ -38,6 +54,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/students', [StudentApprovalController::class, 'index'])->name('students.index');
         Route::post('/students/{user}/approve', [StudentApprovalController::class, 'approve'])->name('students.approve');
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
+
+        Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
 
         Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
         Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');

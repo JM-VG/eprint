@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureApproved;
 use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureStation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureRole::class,
             'approved' => EnsureApproved::class,
             'password.changed' => EnsurePasswordChanged::class,
+            'station' => EnsureStation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
