@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Enums\UserStatus;
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -13,11 +16,28 @@ use Illuminate\Validation\ValidationException;
 class LoginRequest extends FormRequest
 {
     /**
+     * Failed attempts allowed per student ID / username and IP.
+     */
+    public const MAX_ATTEMPTS = 5;
+
+    /**
+     * Lockout window in seconds (15 minutes).
+     */
+    public const DECAY_SECONDS = 900;
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('login'))) {
+            $this->merge(['login' => trim($this->input('login'))]);
+        }
     }
 
     /**
@@ -28,29 +48,58 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return ['login' => 'Student ID or Username'];
+    }
+
+    /**
+     * Authenticate by student ID (students) or username (staff, admin).
+     * Only approved accounts get a session; the status is revealed only after a correct password.
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(): User
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $user = $this->findUser();
+
+        if (! $user || ! Hash::check($this->string('password'), $user->password)) {
+            RateLimiter::hit($this->throttleKey(), self::DECAY_SECONDS);
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'login' => trans('auth.failed'),
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        if ($user->status !== UserStatus::Approved) {
+            throw ValidationException::withMessages([
+                'login' => $user->status->loginMessage($user->rejection_reason),
+            ]);
+        }
+
+        Auth::login($user, $this->boolean('remember'));
+
+        return $user;
+    }
+
+    private function findUser(): ?User
+    {
+        $login = $this->string('login')->toString();
+
+        return User::where('student_id', strtoupper($login))->first()
+            ?? User::where('username', $login)->first();
     }
 
     /**
@@ -60,7 +109,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), self::MAX_ATTEMPTS)) {
             return;
         }
 
@@ -69,7 +118,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'login' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -81,6 +130,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
     }
 }

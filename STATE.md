@@ -17,6 +17,7 @@ Phase 2 in progress.
 
 ## Needs human review
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
+- P2-02 Login: app/Http/Requests/Auth/LoginRequest.php, app/Http/Controllers/Auth/AuthenticatedSessionController.php, app/Enums/UserStatus.php (message wording), app/Enums/Role.php, tests/Feature/Auth/AuthenticationTest.php
 
 ## Notes
 - Bootstrap completed 2026-09-30.
@@ -25,6 +26,7 @@ Phase 2 in progress.
 - P1-03 verifier note: User role/status/approved_by/must_change_password are mass-assignable; P2 controllers must only pass validated or explicit arrays.
 - P1-04 verifier notes: seeded admin is not must_change_password (consider in P2-05); commission_rate seeded as 0 (admin must set); DEPLOY.md (P7-07) must say APP_ENV=production or DemoSeeder creates accounts with password "password".
 - P2-01 verifier note: Setting cache is flushed via model events only; the P4-01 settings page must save through Setting models, not bulk query updates.
+- P2-02 verifier notes: P2-05 staff creation must reject a username equal (case-insensitive) to any student_id, since login tries student_id first. intended() redirects are only safe once P2-03 EnsureRole exists.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -38,7 +40,7 @@ Phase 2 in progress.
 
 ### Phase 2 Accounts (branch phase-2-accounts)
 - [x] P2-01 [HUMAN-REVIEW] Student signup with pattern, uppercase, duplicate message, pending status, NewSignup notification. (done 2026-09-30)
-- [ ] P2-02 [HUMAN-REVIEW] Login by student_id or username, throttle, status messages, role redirect.
+- [x] P2-02 [HUMAN-REVIEW] Login by student_id or username, throttle, status messages, role redirect. (done 2026-09-30)
 - [ ] P2-03 [HUMAN-REVIEW] EnsureRole, EnsureApproved, EnsurePasswordChanged middleware, route groups, 403 page.
 - [ ] P2-04 Admin student approval queue: approve, reject with reason, disable, notifications.
 - [ ] P2-05 [HUMAN-REVIEW] Admin staff management: create, edit, disable, temporary password reset.
