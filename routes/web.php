@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShiftHistoryController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
@@ -56,6 +58,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
 
         Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
+
+        Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+        Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
+        Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+
+        Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 
         Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
         Route::get('/staff/create', [StaffController::class, 'create'])->name('staff.create');

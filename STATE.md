@@ -61,7 +61,7 @@ Phase 4 in progress.
 - [x] P3-05 Admin Shift History with filters. (done 2026-09-30)
 
 ### Phase 4 Jobs (branch phase-4-jobs)
-- [ ] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern).
+- [x] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern). (done 2026-09-30)
 - [ ] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets.
 - [ ] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config.
 - [ ] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code.
