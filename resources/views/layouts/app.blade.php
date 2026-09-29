@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @if (in_array(auth()->user()?->role, [\App\Enums\Role::Staff, \App\Enums\Role::Admin], true))
+            <meta name="eprint-heartbeat" content="{{ route('api.heartbeat') }}">
+        @endif
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 

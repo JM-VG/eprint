@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
+use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    Route::post('/api/heartbeat', HeartbeatController::class)
+        ->middleware('role:staff,admin')->name('api.heartbeat');
+
     // Student pages (print and photo jobs) are added in Phase 4.
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         //
@@ -33,6 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:staff,admin')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/station', [StationController::class, 'show'])->name('station');
         Route::post('/station', [StationController::class, 'store'])->name('station.store');
+        Route::post('/station/switch', [StationController::class, 'switch'])->name('station.switch');
+        Route::post('/station/clock-out', [StationController::class, 'clockOut'])->name('station.clock-out');
 
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {

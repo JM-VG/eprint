@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Enums\CloseReason;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\ClockInRequest;
 use App\Models\Location;
@@ -33,5 +34,20 @@ class StationController extends Controller
         }
 
         return redirect()->route('staff.station')->with('success', "Clocked in at {$location->name}.");
+    }
+
+    public function switch(ClockInRequest $request): RedirectResponse
+    {
+        $location = Location::findOrFail($request->validated('location_id'));
+        $this->stations->switchTo($request->user(), $location);
+
+        return redirect()->route('staff.station')->with('success', "Switched to {$location->name}.");
+    }
+
+    public function clockOut(Request $request): RedirectResponse
+    {
+        $this->stations->close($request->user(), CloseReason::Manual);
+
+        return redirect()->route('staff.station')->with('success', 'Clocked out.');
     }
 }

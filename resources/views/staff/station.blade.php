@@ -12,6 +12,22 @@
                         <strong class="text-gray-900">{{ $current->location->name }}</strong>
                         {{ __('since :time.', ['time' => $current->opened_at->format('g:i A')]) }}
                     </p>
+
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        @foreach ($locations->where('id', '!=', $current->location_id) as $location)
+                            <form method="POST" action="{{ route('staff.station.switch') }}">
+                                @csrf
+                                <input type="hidden" name="location_id" value="{{ $location->id }}">
+                                <x-secondary-button type="submit">{{ __('Switch to :name', ['name' => $location->name]) }}</x-secondary-button>
+                            </form>
+                        @endforeach
+
+                        <form method="POST" action="{{ route('staff.station.clock-out') }}">
+                            @csrf
+                            <x-danger-button>{{ __('Clock Out') }}</x-danger-button>
+                        </form>
+                    </div>
+                    <x-input-error :messages="$errors->get('location_id')" class="mt-2" />
                 @else
                     <h3 class="text-lg font-medium text-gray-900">{{ __('Clock In') }}</h3>
                     <p class="mt-1 text-sm text-gray-600">{{ __('Pick the location you are working at. Students see it as open while you are clocked in.') }}</p>
