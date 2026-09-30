@@ -102,7 +102,7 @@ Phase 7 in progress.
 - [x] P6-04 [HUMAN-REVIEW] Admin payouts. (done 2026-09-30)
 
 ### Phase 7 Reports and launch (branch phase-7-launch)
-- [ ] P7-01 Sales report filters and CSV export.
+- [x] P7-01 Sales report filters and CSV export. (done 2026-09-30)
 - [ ] P7-02 Announcements CRUD and banner.
 - [ ] P7-03 Student and admin dashboards.
 - [ ] P7-04 CleanupOldFiles command and schedule.
