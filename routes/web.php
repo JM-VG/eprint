@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShiftHistoryController;
@@ -105,6 +106,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
 
         Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
+
+        Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('/payouts', [PayoutController::class, 'store'])->name('payouts.store');
+        Route::get('/payouts/{payout}', [PayoutController::class, 'show'])->name('payouts.show');
 
         Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
         Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
