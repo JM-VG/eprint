@@ -108,4 +108,4 @@ Phase 7 in progress.
 - [x] P7-04 CleanupOldFiles command and schedule. (done 2026-09-30)
 - [x] P7-05 Audit log page. (done 2026-09-30)
 - [x] P7-06 Legacy walk-in CSV import (optional). (done 2026-09-30)
-- [ ] P7-07 README.md, DEPLOY.md (server checklist, cron line, php.ini limits, LibreOffice note), final full test run.
+- [x] P7-07 README.md, DEPLOY.md (server checklist, cron line, php.ini limits, LibreOffice note), final full test run. (done 2026-09-30)
