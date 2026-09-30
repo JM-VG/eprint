@@ -33,7 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Uploads are served only through FileController after authorization.
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

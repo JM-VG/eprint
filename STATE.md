@@ -26,6 +26,8 @@ Phase 4 in progress.
 - P2-05 Staff management: app/Http/Requests/Admin/StaffRequest.php, app/Services/StaffAccountService.php, app/Http/Controllers/Admin/UserAccountController.php, app/Http/Controllers/Admin/StaffController.php, app/Policies/UserPolicy.php, app/Services/AccountApprovalService.php, routes/web.php, resources/views/admin/staff/*.blade.php, tests/Feature/Admin/StaffManagementTest.php
 - P4-04 Document job form: app/Services/JobSubmissionService.php, app/Http/Requests/Student/StoreDocumentJobRequest.php, app/Http/Controllers/Api/PriceEstimateController.php, app/Services/ClaimCodeGenerator.php, routes/web.php
 
+- P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
+
 ## Notes
 - Bootstrap completed 2026-09-30.
 - P1-01 verifier note: users.name is still NOT NULL; student signup (P2-01) must fill name or add a migration making it nullable.
@@ -36,6 +38,7 @@ Phase 4 in progress.
 - P2-02 verifier notes: P2-05 staff creation must reject a username equal (case-insensitive) to any student_id, since login tries student_id first. intended() redirects are only safe once P2-03 EnsureRole exists.
 - P2-03 notes: EnsureApproved and EnsurePasswordChanged run on the whole web group. student./staff./admin. route groups in routes/web.php are empty; each later task must add its routes inside the right group and test role access.
 - P4-04 verifier notes: config/filesystems.php local disk has 'serve' => true; P4-07 should set it false so uploads are only reachable via FileController. Claim-code check-then-insert can race (unique index blocks it, user sees an error); consider retry on unique violation. Submit route has no rate limit.
+- P4-07 verifier note: an original_name with control characters (newline/tab) makes the download 500 (fails closed); consider stripping control chars at upload.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -69,7 +72,7 @@ Phase 4 in progress.
 - [x] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code. (done 2026-09-30)
 - [x] P4-05 Photo job form. (done 2026-09-30)
 - [x] P4-06 My Jobs, Job Details with QR, edit and delete while pending via PrintJobPolicy. (done 2026-09-30)
-- [ ] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin.
+- [x] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin. (done 2026-09-30)
 
 ### Phase 5 Queue (branch phase-5-queue)
 - [ ] P5-01 Staff queue per location with tabs and polled badge.

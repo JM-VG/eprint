@@ -17,7 +17,13 @@
             <section class="md:col-span-2 bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
                 <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                     <dt class="text-gray-500">{{ __('File') }}</dt>
-                    <dd class="text-gray-900 break-all">{{ $job->original_name }}</dd>
+                    <dd class="text-gray-900 break-all">
+                        @if ($job->files_deleted_at)
+                            {{ $job->original_name }} <span class="text-gray-500">({{ __('removed') }})</span>
+                        @else
+                            <a href="{{ route('files.jobs.show', $job) }}" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">{{ $job->original_name }}</a>
+                        @endif
+                    </dd>
 
                     <dt class="text-gray-500">{{ __('Pick up at') }}</dt>
                     <dd class="text-gray-900">{{ $job->location->name }}</dd>

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\Api\PriceEstimateController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Student\DocumentJobController;
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/files/jobs/{job}', [FileController::class, 'show'])->name('files.jobs.show');
 
     Route::post('/api/price-estimate', PriceEstimateController::class)
         ->middleware('throttle:60,1')->name('api.price-estimate');
