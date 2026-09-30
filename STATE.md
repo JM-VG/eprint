@@ -67,7 +67,7 @@ Phase 4 in progress.
 - [x] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets. (done 2026-09-30)
 - [x] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config. (done 2026-09-30)
 - [x] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code. (done 2026-09-30)
-- [ ] P4-05 Photo job form.
+- [x] P4-05 Photo job form. (done 2026-09-30)
 - [ ] P4-06 My Jobs, Job Details with QR, edit and delete while pending via PrintJobPolicy.
 - [ ] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin.
 

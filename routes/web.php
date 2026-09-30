@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Student\DocumentJobController;
+use App\Http\Controllers\Student\PhotoJobController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         Route::get('/jobs/create', [DocumentJobController::class, 'create'])->name('jobs.create');
         Route::post('/jobs', [DocumentJobController::class, 'store'])->name('jobs.store');
+        Route::get('/photos/create', [PhotoJobController::class, 'create'])->name('photos.create');
+        Route::post('/photos', [PhotoJobController::class, 'store'])->name('photos.store');
     });
 
     // Counter pages for staff; admins do everything staff do. EnsureStation joins in Phase 3.

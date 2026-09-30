@@ -53,45 +53,89 @@ class JobSubmissionService
                 throw ValidationException::withMessages(['page_range' => $e->getMessage()]);
             }
 
-            return DB::transaction(function () use ($user, $data, $file, $service, $fileType, $storedPath, $pdfPath, $count, $pageRange, $estimate, $source) {
-                $job = new PrintJob;
-                $job->forceFill([
-                    'claim_code' => $this->claimCodes->generate(),
-                    'user_id' => $user->id,
-                    'location_id' => $data['location_id'],
-                    'service_id' => $service->id,
-                    'source' => $source,
-                    'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
-                    'stored_path' => $storedPath,
-                    'pdf_path' => $pdfPath,
-                    'file_type' => $fileType,
-                    'file_size' => $file->getSize(),
-                    'page_count' => $count['pages'],
-                    'page_range' => $pageRange,
-                    'copies' => (int) $data['copies'],
-                    'duplex' => (bool) ($data['duplex'] ?? false),
-                    'notes' => $data['notes'] ?? null,
-                    'unit_price' => $estimate['unit_price'],
-                    'estimated_total' => $estimate['total'],
-                    'status' => JobStatus::Pending,
-                    'payment_status' => PaymentStatus::Unpaid,
-                ])->save();
-
-                JobLog::create([
-                    'print_job_id' => $job->id,
-                    'user_id' => $user->id,
-                    'from_status' => null,
-                    'to_status' => JobStatus::Pending,
-                    'note' => 'Submitted',
-                ]);
-
-                return $job;
-            });
+            return $this->createPendingJob($user, $file, [
+                'location_id' => $data['location_id'],
+                'service_id' => $service->id,
+                'source' => $source,
+                'stored_path' => $storedPath,
+                'pdf_path' => $pdfPath,
+                'file_type' => $fileType,
+                'page_count' => $count['pages'],
+                'page_range' => $pageRange,
+                'copies' => (int) $data['copies'],
+                'duplex' => (bool) ($data['duplex'] ?? false),
+                'notes' => $data['notes'] ?? null,
+                'unit_price' => $estimate['unit_price'],
+                'estimated_total' => $estimate['total'],
+            ]);
         } catch (Throwable $e) {
             Storage::disk(self::DISK)->delete(array_filter([$storedPath, $pdfPath]));
 
             throw $e;
         }
+    }
+
+    /**
+     * Photo jobs: one image, priced as sets x unit price.
+     *
+     * @param  array{location_id: int, service_id: int, sets: int, notes?: ?string}  $data
+     */
+    public function submitPhoto(User $user, array $data, UploadedFile $file, SaleSource $source = SaleSource::Online): PrintJob
+    {
+        $service = Service::findOrFail($data['service_id']);
+        $storedPath = $file->store('uploads', self::DISK);
+
+        try {
+            $estimate = $this->prices->estimate($service, sets: (int) $data['sets']);
+
+            return $this->createPendingJob($user, $file, [
+                'location_id' => $data['location_id'],
+                'service_id' => $service->id,
+                'source' => $source,
+                'stored_path' => $storedPath,
+                'file_type' => strtolower($file->extension()),
+                'page_count' => 1,
+                'copies' => 1,
+                'sets' => (int) $data['sets'],
+                'notes' => $data['notes'] ?? null,
+                'unit_price' => $estimate['unit_price'],
+                'estimated_total' => $estimate['total'],
+            ]);
+        } catch (Throwable $e) {
+            Storage::disk(self::DISK)->delete($storedPath);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Create the pending job with its claim code and first job log in one transaction.
+     *
+     * @param  array<string, mixed>  $attributes
+     */
+    private function createPendingJob(User $user, UploadedFile $file, array $attributes): PrintJob
+    {
+        return DB::transaction(function () use ($user, $file, $attributes) {
+            $job = new PrintJob;
+            $job->forceFill($attributes + [
+                'claim_code' => $this->claimCodes->generate(),
+                'user_id' => $user->id,
+                'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
+                'file_size' => $file->getSize(),
+                'status' => JobStatus::Pending,
+                'payment_status' => PaymentStatus::Unpaid,
+            ])->save();
+
+            JobLog::create([
+                'print_job_id' => $job->id,
+                'user_id' => $user->id,
+                'from_status' => null,
+                'to_status' => JobStatus::Pending,
+                'note' => 'Submitted',
+            ]);
+
+            return $job;
+        });
     }
 
     /**
