@@ -105,7 +105,7 @@ Phase 7 in progress.
 - [x] P7-01 Sales report filters and CSV export. (done 2026-09-30)
 - [x] P7-02 Announcements CRUD and banner. (done 2026-09-30)
 - [x] P7-03 Student and admin dashboards. (done 2026-09-30)
-- [ ] P7-04 CleanupOldFiles command and schedule.
+- [x] P7-04 CleanupOldFiles command and schedule. (done 2026-09-30)
 - [ ] P7-05 Audit log page.
 - [ ] P7-06 Legacy walk-in CSV import (optional).
 - [ ] P7-07 README.md, DEPLOY.md (server checklist, cron line, php.ini limits, LibreOffice note), final full test run.
