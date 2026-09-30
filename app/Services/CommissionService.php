@@ -125,9 +125,9 @@ class CommissionService
     /**
      * Create a sale with the current commission rate snapshot.
      */
-    public function recordSale(int $creditedTo, int $locationId, SaleSource $source, PaymentMethod $method, string $amount, ?int $printJobId = null): Sale
+    public function recordSale(int $creditedTo, int $locationId, SaleSource $source, PaymentMethod $method, string $amount, ?int $printJobId = null, ?string $rate = null): Sale
     {
-        $rate = $this->currentRate();
+        $rate = $rate !== null ? number_format((float) $rate, 2, '.', '') : $this->currentRate();
 
         return Sale::create([
             'user_id' => $creditedTo,
