@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShiftHistoryController;
@@ -13,10 +14,13 @@ use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\ClaimController;
+use App\Http\Controllers\Staff\CommissionController;
 use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Staff\SubmitJobController;
+use App\Http\Controllers\Staff\WalkinSaleController;
 use App\Http\Controllers\Student\DocumentJobController;
 use App\Http\Controllers\Student\JobController;
 use App\Http\Controllers\Student\PhotoJobController;
@@ -79,6 +83,7 @@ Route::middleware('auth')->group(function () {
         // Own jobs (source staff_job) do not need an open station.
         Route::get('/jobs/create', [SubmitJobController::class, 'create'])->name('jobs.create');
         Route::post('/jobs', [SubmitJobController::class, 'store'])->name('jobs.store');
+        Route::get('/commission', [CommissionController::class, 'index'])->name('commission');
 
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {
@@ -87,6 +92,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/jobs/{job}/reject', [JobActionController::class, 'reject'])->name('jobs.reject');
             Route::post('/jobs/{job}/printing', [JobActionController::class, 'printing'])->name('jobs.printing');
             Route::post('/jobs/{job}/ready', [JobActionController::class, 'ready'])->name('jobs.ready');
+            Route::get('/claim', [ClaimController::class, 'show'])->name('claim');
+            Route::post('/claim', [ClaimController::class, 'store'])->name('claim.store');
+            Route::get('/walk-in', [WalkinSaleController::class, 'create'])->name('walkin.create');
+            Route::post('/walk-in', [WalkinSaleController::class, 'store'])->name('walkin.store');
         });
     });
 
@@ -97,6 +106,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
 
         Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
+
+        Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
+        Route::post('/payouts', [PayoutController::class, 'store'])->name('payouts.store');
+        Route::get('/payouts/{payout}', [PayoutController::class, 'show'])->name('payouts.show');
 
         Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
         Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');

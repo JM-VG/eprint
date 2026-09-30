@@ -1,7 +1,7 @@
 # E-Print Build State
 
 ## Current phase
-Phase 6
+Phase 7
 
 ## Phase status
 Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
@@ -14,7 +14,9 @@ Phase 4 complete, reviewed by Claude: 398 tests pass, Pint clean. MySQL re-check
 Phase 4 merged (2026-09-30, merged by Claude at the human's request)
 Phase 5 complete, reviewed by Claude: 494 tests pass, Pint clean; no migrations in Phase 5 (MySQL schema unchanged since Phase 3 check).
 Phase 5 merged (2026-09-30, merged by Claude at the human's request)
-Phase 6 in progress.
+Phase 6 complete, reviewed by Claude: 547 tests pass, Pint clean; no migrations in Phase 6.
+Phase 6 merged (2026-09-30, merged by Claude at the human's request)
+Phase 7 in progress.
 
 ## High Priority
 (none)
@@ -31,6 +33,12 @@ Phase 6 in progress.
 - P4-04 Document job form: app/Services/JobSubmissionService.php, app/Http/Requests/Student/StoreDocumentJobRequest.php, app/Http/Controllers/Api/PriceEstimateController.php, app/Services/ClaimCodeGenerator.php, routes/web.php
 
 - P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
+
+- P6-01 Claim flow: app/Services/CommissionService.php, app/Http/Controllers/Staff/ClaimController.php, app/Http/Requests/Staff/ClaimRequest.php, tests/Feature/Staff/ClaimTest.php, app/Services/JobStatusService.php
+
+- P6-02 Walk-in sales: app/Services/CommissionService.php (recordWalkin), app/Http/Requests/Staff/WalkinSaleRequest.php, app/Http/Controllers/Staff/WalkinSaleController.php, resources/js/walkin.js, tests/Feature/Staff/WalkinSaleTest.php
+
+- P6-04 Payouts: app/Services/PayoutService.php, app/Http/Controllers/Admin/PayoutController.php, app/Http/Requests/Admin/PayoutRequest.php, tests/Feature/Admin/PayoutTest.php
 
 ## Notes
 - 2026-09-30: human instructed to continue past the report-only threshold: "lets finish this project. continue finish it". Caps in loop-budget.md left unchanged; build/verify/commit cycle continues per task.
@@ -88,10 +96,10 @@ Phase 6 in progress.
 - [x] P5-04 Staff and admin job submission with source staff_job. (done 2026-09-30)
 
 ### Phase 6 Payments and sales (branch phase-6-sales)
-- [ ] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction.
-- [ ] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used.
-- [ ] P6-03 Staff commission dashboard.
-- [ ] P6-04 [HUMAN-REVIEW] Admin payouts.
+- [x] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction. (done 2026-09-30)
+- [x] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used. (done 2026-09-30)
+- [x] P6-03 Staff commission dashboard. (done 2026-09-30)
+- [x] P6-04 [HUMAN-REVIEW] Admin payouts. (done 2026-09-30)
 
 ### Phase 7 Reports and launch (branch phase-7-launch)
 - [ ] P7-01 Sales report filters and CSV export.

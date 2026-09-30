@@ -6,6 +6,7 @@ import { startPriceEstimate } from './estimate';
 import { startHeartbeat } from './heartbeat';
 import { startNotificationBell } from './notification-bell';
 import { startQueueBadge } from './queue-badge';
+import { startWalkinForm } from './walkin';
 
 window.Alpine = Alpine;
 
@@ -16,3 +17,4 @@ startAvailabilityBanner();
 startPriceEstimate();
 startQueueBadge();
 startNotificationBell();
+startWalkinForm();
