@@ -16,7 +16,9 @@ Phase 5 complete, reviewed by Claude: 494 tests pass, Pint clean; no migrations 
 Phase 5 merged (2026-09-30, merged by Claude at the human's request)
 Phase 6 complete, reviewed by Claude: 547 tests pass, Pint clean; no migrations in Phase 6.
 Phase 6 merged (2026-09-30, merged by Claude at the human's request)
-Phase 7 in progress.
+Phase 7 complete, reviewed by Claude: final full run 616 tests pass (2041 assertions), Pint clean; no migrations in Phase 7.
+Phase 7 merged (2026-09-30, merged by Claude at the human's request)
+All phases complete.
 
 ## High Priority
 (none)
@@ -41,6 +43,7 @@ Phase 7 in progress.
 - P6-04 Payouts: app/Services/PayoutService.php, app/Http/Controllers/Admin/PayoutController.php, app/Http/Requests/Admin/PayoutRequest.php, tests/Feature/Admin/PayoutTest.php
 
 ## Notes
+- 2026-09-30: human asked to publish the project: "put it in this git repo https://github.com/JM-VG/eprint.git". main pushed there after merging GitHub's initial README commit (unrelated history, our README kept).
 - 2026-09-30: human instructed to continue past the report-only threshold: "lets finish this project. continue finish it". Caps in loop-budget.md left unchanged; build/verify/commit cycle continues per task.
 - 2026-09-30: daily budget at 82.5% (2,474,000 of 3,000,000 logged) after P5-02; loop switched to report-only. Next task: P5-03. Raise Max tokens/day in loop-budget.md (human only) or resume after the daily reset.
 - Bootstrap completed 2026-09-30.
@@ -102,10 +105,10 @@ Phase 7 in progress.
 - [x] P6-04 [HUMAN-REVIEW] Admin payouts. (done 2026-09-30)
 
 ### Phase 7 Reports and launch (branch phase-7-launch)
-- [ ] P7-01 Sales report filters and CSV export.
-- [ ] P7-02 Announcements CRUD and banner.
-- [ ] P7-03 Student and admin dashboards.
-- [ ] P7-04 CleanupOldFiles command and schedule.
-- [ ] P7-05 Audit log page.
-- [ ] P7-06 Legacy walk-in CSV import (optional).
-- [ ] P7-07 README.md, DEPLOY.md (server checklist, cron line, php.ini limits, LibreOffice note), final full test run.
+- [x] P7-01 Sales report filters and CSV export. (done 2026-09-30)
+- [x] P7-02 Announcements CRUD and banner. (done 2026-09-30)
+- [x] P7-03 Student and admin dashboards. (done 2026-09-30)
+- [x] P7-04 CleanupOldFiles command and schedule. (done 2026-09-30)
+- [x] P7-05 Audit log page. (done 2026-09-30)
+- [x] P7-06 Legacy walk-in CSV import (optional). (done 2026-09-30)
+- [x] P7-07 README.md, DEPLOY.md (server checklist, cron line, php.ini limits, LibreOffice note), final full test run. (done 2026-09-30)

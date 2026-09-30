@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\PayoutController;
+use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShiftHistoryController;
@@ -11,6 +14,7 @@ use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\Api\QueueCountController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
@@ -37,9 +41,7 @@ Route::get('/api/availability', AvailabilityController::class)
     ->middleware('throttle:600,1')->name('api.availability');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -101,11 +103,20 @@ Route::middleware('auth')->group(function () {
 
     // Admin-only pages: approvals, staff, prices, settings, reports, payouts.
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [DashboardController::class, 'admin'])->name('dashboard');
+
         Route::get('/students', [StudentApprovalController::class, 'index'])->name('students.index');
         Route::post('/students/{user}/approve', [StudentApprovalController::class, 'approve'])->name('students.approve');
         Route::post('/students/{user}/reject', [StudentApprovalController::class, 'reject'])->name('students.reject');
 
         Route::get('/shifts', [ShiftHistoryController::class, 'index'])->name('shifts.index');
+
+        Route::get('/reports/sales', [SalesReportController::class, 'index'])->name('reports.sales');
+        Route::get('/reports/sales/export', [SalesReportController::class, 'export'])->name('reports.sales.export');
+
+        Route::resource('announcements', AnnouncementController::class)->except('show');
+
+        Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
 
         Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
         Route::post('/payouts', [PayoutController::class, 'store'])->name('payouts.store');

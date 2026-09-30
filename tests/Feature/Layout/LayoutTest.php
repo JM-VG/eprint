@@ -32,7 +32,7 @@ it('shows staff only the staff menu', function () {
 });
 
 it('shows admins the staff menu plus the admin menu', function () {
-    $response = $this->actingAs(User::factory()->admin()->create())->get('/dashboard');
+    $response = $this->actingAs(User::factory()->admin()->create())->get(route('admin.dashboard'));
 
     $response->assertOk();
     foreach ([

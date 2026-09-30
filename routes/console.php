@@ -9,3 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('stations:close-idle')->everyMinute()->withoutOverlapping();
+
+Schedule::command('files:cleanup')->dailyAt('02:00')->withoutOverlapping();

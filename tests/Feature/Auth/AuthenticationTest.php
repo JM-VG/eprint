@@ -1,13 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Route;
-
-function registerRoleHomes(): void
-{
-    Route::middleware('web')->get('/_test/admin-home', fn () => 'admin home')->name('admin.dashboard');
-    Route::getRoutes()->refreshNameLookups();
-}
 
 test('login screen can be rendered with a single student id or username field', function () {
     $this->get('/login')
@@ -51,7 +44,6 @@ test('staff cannot log in with an email address', function () {
 });
 
 test('users are redirected to their role home', function (string $state, string $path) {
-    registerRoleHomes();
     $user = User::factory()->{$state}()->create();
     $login = $user->student_id ?? $user->username;
 
@@ -60,15 +52,8 @@ test('users are redirected to their role home', function (string $state, string 
 })->with([
     'student' => ['student', '/dashboard'],
     'staff' => ['staff', '/staff/station'],
-    'admin' => ['admin', '/_test/admin-home'],
+    'admin' => ['admin', '/admin'],
 ]);
-
-test('role homes fall back to the dashboard until those pages exist', function (string $state) {
-    $user = User::factory()->{$state}()->create();
-
-    $this->post('/login', ['login' => $user->username, 'password' => 'password'])
-        ->assertRedirect(route('dashboard', absolute: false));
-})->with(['admin']); // staff.station exists since P3-01; see tests/Feature/Staff/ClockInTest.php
 
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
