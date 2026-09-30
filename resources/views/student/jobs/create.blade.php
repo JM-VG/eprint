@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('New Print Job') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $heading ?? __('New Print Job') }}</h2>
     </x-slot>
 
     <div class="py-6">
         <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('student.jobs.store') }}" enctype="multipart/form-data"
+            <form method="POST" action="{{ $action ?? route('student.jobs.store') }}" enctype="multipart/form-data"
                   data-estimate-form data-estimate-url="{{ route('api.price-estimate') }}"
                   class="bg-white shadow-sm sm:rounded-lg p-6 space-y-5">
                 @csrf

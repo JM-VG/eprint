@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
+use App\Http\Controllers\Staff\SubmitJobController;
 use App\Http\Controllers\Student\DocumentJobController;
 use App\Http\Controllers\Student\JobController;
 use App\Http\Controllers\Student\PhotoJobController;
@@ -74,6 +75,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/station', [StationController::class, 'store'])->name('station.store');
         Route::post('/station/switch', [StationController::class, 'switch'])->name('station.switch');
         Route::post('/station/clock-out', [StationController::class, 'clockOut'])->name('station.clock-out');
+
+        // Own jobs (source staff_job) do not need an open station.
+        Route::get('/jobs/create', [SubmitJobController::class, 'create'])->name('jobs.create');
+        Route::post('/jobs', [SubmitJobController::class, 'store'])->name('jobs.store');
 
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {

@@ -83,7 +83,7 @@ Phase 5 in progress.
 - [x] P5-01 Staff queue per location with tabs and polled badge. (done 2026-09-30)
 - [x] P5-02 JobStatusService with allowed transitions, job_logs, accept and reject rules. (done 2026-09-30)
 - [x] P5-03 JobReady notification and in-app bell with unread count endpoint. (done 2026-09-30)
-- [ ] P5-04 Staff and admin job submission with source staff_job.
+- [x] P5-04 Staff and admin job submission with source staff_job. (done 2026-09-30)
 
 ### Phase 6 Payments and sales (branch phase-6-sales)
 - [ ] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction.
