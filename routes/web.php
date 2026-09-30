@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
@@ -39,6 +40,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/files/jobs/{job}', [FileController::class, 'show'])->name('files.jobs.show');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'count'])->name('api.notifications.count');
 
     Route::post('/api/price-estimate', PriceEstimateController::class)
         ->middleware('throttle:60,1')->name('api.price-estimate');

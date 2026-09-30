@@ -7,6 +7,7 @@ use App\Exceptions\InvalidJobTransition;
 use App\Models\JobLog;
 use App\Models\PrintJob;
 use App\Models\User;
+use App\Notifications\JobReady;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -39,7 +40,7 @@ class JobStatusService
      */
     public function transition(PrintJob $job, JobStatus $to, User $actor, ?string $note = null, array $attributes = []): PrintJob
     {
-        return DB::transaction(function () use ($job, $to, $actor, $note, $attributes) {
+        $job = DB::transaction(function () use ($job, $to, $actor, $note, $attributes) {
             $job = PrintJob::whereKey($job->id)->lockForUpdate()->firstOrFail();
             $from = $job->status;
 
@@ -59,6 +60,12 @@ class JobStatusService
 
             return $job;
         });
+
+        if ($to === JobStatus::Ready) {
+            $job->user->notify(new JobReady($job));
+        }
+
+        return $job;
     }
 
     /**
