@@ -26,7 +26,7 @@ class PhotoJobController extends Controller
         $job = $jobs->submitPhoto($request->user(), $request->safe()->except('file'), $request->file('file'));
 
         $location = Location::findOrFail($job->location_id);
-        $redirect = redirect()->route('dashboard')
+        $redirect = redirect()->route('student.jobs.show', $job)
             ->with('success', "Photo job submitted. Your claim code is {$job->claim_code}.");
 
         if (! $availability->isOpen($location)) {

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Student\DocumentJobController;
+use App\Http\Controllers\Student\JobController;
 use App\Http\Controllers\Student\PhotoJobController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,11 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         Route::get('/jobs/create', [DocumentJobController::class, 'create'])->name('jobs.create');
         Route::post('/jobs', [DocumentJobController::class, 'store'])->name('jobs.store');
+        Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+        Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+        Route::get('/jobs/{job}/edit', [JobController::class, 'edit'])->name('jobs.edit');
+        Route::put('/jobs/{job}', [JobController::class, 'update'])->name('jobs.update');
+        Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('jobs.destroy');
         Route::get('/photos/create', [PhotoJobController::class, 'create'])->name('photos.create');
         Route::post('/photos', [PhotoJobController::class, 'store'])->name('photos.store');
     });

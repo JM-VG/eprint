@@ -30,7 +30,7 @@ class DocumentJobController extends Controller
         );
 
         $location = Location::findOrFail($job->location_id);
-        $redirect = redirect()->route('dashboard')
+        $redirect = redirect()->route('student.jobs.show', $job)
             ->with('success', "Job submitted. Your claim code is {$job->claim_code}.");
 
         if (! $availability->isOpen($location)) {

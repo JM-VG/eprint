@@ -109,6 +109,64 @@ class JobSubmissionService
     }
 
     /**
+     * Change a pending job's options (not its file) and recalculate the price snapshot.
+     *
+     * @param  array<string, mixed>  $data  validated UpdateJobRequest data
+     *
+     * @throws ValidationException for page ranges outside the document
+     */
+    public function update(PrintJob $job, User $user, array $data): PrintJob
+    {
+        $service = Service::findOrFail($data['service_id']);
+        $isPhoto = $service->type === 'photo';
+        $pageRange = ! $isPhoto && filled($data['page_range'] ?? null) ? trim($data['page_range']) : null;
+        $copies = $isPhoto ? 1 : (int) $data['copies'];
+        $sets = $isPhoto ? (int) $data['sets'] : null;
+
+        try {
+            $estimate = $this->prices->estimate($service, $job->page_count, $pageRange, $copies, $sets ?? 1);
+        } catch (InvalidArgumentException $e) {
+            throw ValidationException::withMessages(['page_range' => $e->getMessage()]);
+        }
+
+        DB::transaction(function () use ($job, $user, $data, $service, $isPhoto, $pageRange, $copies, $sets, $estimate) {
+            $job->forceFill([
+                'location_id' => $data['location_id'],
+                'service_id' => $service->id,
+                'page_range' => $pageRange,
+                'copies' => $copies,
+                'sets' => $sets,
+                'duplex' => $isPhoto ? false : (bool) ($data['duplex'] ?? false),
+                'notes' => $data['notes'] ?? null,
+                'unit_price' => $estimate['unit_price'],
+                'estimated_total' => $estimate['total'],
+            ])->save();
+
+            JobLog::create([
+                'print_job_id' => $job->id,
+                'user_id' => $user->id,
+                'from_status' => $job->status,
+                'to_status' => $job->status,
+                'note' => 'Edited by owner',
+            ]);
+        });
+
+        return $job;
+    }
+
+    /**
+     * Delete a job together with its uploaded and converted files.
+     */
+    public function delete(PrintJob $job): void
+    {
+        $files = array_filter([$job->stored_path, $job->pdf_path]);
+
+        DB::transaction(fn () => $job->delete());
+
+        Storage::disk(self::DISK)->delete($files);
+    }
+
+    /**
      * Create the pending job with its claim code and first job log in one transaction.
      *
      * @param  array<string, mixed>  $attributes
