@@ -1,7 +1,7 @@
 # E-Print Build State
 
 ## Current phase
-Phase 4
+Phase 5
 
 ## Phase status
 Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
@@ -10,7 +10,9 @@ Phase 2 complete, reviewed by Claude: 184 tests pass; MySQL 8 migrate:fresh --se
 Phase 2 merged (2026-09-30, merged by Claude at the human's request)
 Phase 3 complete, reviewed by Claude: 244 tests pass; MySQL 8 migrate/seed/clock-in/availability/idle-close/shift-history/reset clean. Review fix: APP_TIMEZONE defaults to Asia/Manila.
 Phase 3 merged (2026-09-30, merged by Claude at the human's request)
-Phase 4 in progress.
+Phase 4 complete, reviewed by Claude: 398 tests pass, Pint clean. MySQL re-check skipped (server was stopped for low memory); Phase 4 added no migrations, schema last verified on MySQL 8 at Phase 3.
+Phase 4 merged (2026-09-30, merged by Claude at the human's request)
+Phase 5 in progress.
 
 ## High Priority
 (none)
@@ -24,6 +26,9 @@ Phase 4 in progress.
 - P2-02 Login: app/Http/Requests/Auth/LoginRequest.php, app/Http/Controllers/Auth/AuthenticatedSessionController.php, app/Enums/UserStatus.php (message wording), app/Enums/Role.php, tests/Feature/Auth/AuthenticationTest.php
 - P2-03 Middleware: app/Http/Middleware/EnsureRole.php, app/Http/Middleware/EnsureApproved.php, app/Http/Middleware/EnsurePasswordChanged.php (ALLOWED_ROUTES), bootstrap/app.php, routes/web.php, app/Http/Controllers/Auth/PasswordController.php, resources/views/errors/403.blade.php, tests/Feature/Auth/AccessMiddlewareTest.php
 - P2-05 Staff management: app/Http/Requests/Admin/StaffRequest.php, app/Services/StaffAccountService.php, app/Http/Controllers/Admin/UserAccountController.php, app/Http/Controllers/Admin/StaffController.php, app/Policies/UserPolicy.php, app/Services/AccountApprovalService.php, routes/web.php, resources/views/admin/staff/*.blade.php, tests/Feature/Admin/StaffManagementTest.php
+- P4-04 Document job form: app/Services/JobSubmissionService.php, app/Http/Requests/Student/StoreDocumentJobRequest.php, app/Http/Controllers/Api/PriceEstimateController.php, app/Services/ClaimCodeGenerator.php, routes/web.php
+
+- P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
 
 ## Notes
 - Bootstrap completed 2026-09-30.
@@ -34,6 +39,8 @@ Phase 4 in progress.
 - P2-01 verifier note: Setting cache is flushed via model events only; the P4-01 settings page must save through Setting models, not bulk query updates.
 - P2-02 verifier notes: P2-05 staff creation must reject a username equal (case-insensitive) to any student_id, since login tries student_id first. intended() redirects are only safe once P2-03 EnsureRole exists.
 - P2-03 notes: EnsureApproved and EnsurePasswordChanged run on the whole web group. student./staff./admin. route groups in routes/web.php are empty; each later task must add its routes inside the right group and test role access.
+- P4-04 verifier notes: config/filesystems.php local disk has 'serve' => true; P4-07 should set it false so uploads are only reachable via FileController. Claim-code check-then-insert can race (unique index blocks it, user sees an error); consider retry on unique violation. Submit route has no rate limit.
+- P4-07 verifier note: an original_name with control characters (newline/tab) makes the download 500 (fails closed); consider stripping control chars at upload.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -61,13 +68,13 @@ Phase 4 in progress.
 - [x] P3-05 Admin Shift History with filters. (done 2026-09-30)
 
 ### Phase 4 Jobs (branch phase-4-jobs)
-- [ ] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern).
-- [ ] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets.
-- [ ] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config.
-- [ ] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code.
-- [ ] P4-05 Photo job form.
-- [ ] P4-06 My Jobs, Job Details with QR, edit and delete while pending via PrintJobPolicy.
-- [ ] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin.
+- [x] P4-01 Admin price list CRUD and Settings page (commission rate, GCash details and QR upload, retention days, student ID pattern). (done 2026-09-30)
+- [x] P4-02 PriceCalculator with unit tests for page ranges, copies, photo sets. (done 2026-09-30)
+- [x] P4-03 PageCounter and DocxConverter with fixture tests; conversion off by config. (done 2026-09-30)
+- [x] P4-04 [HUMAN-REVIEW] Student document job form: upload validation, private storage, estimate endpoint, closed-location note, claim code. (done 2026-09-30)
+- [x] P4-05 Photo job form. (done 2026-09-30)
+- [x] P4-06 My Jobs, Job Details with QR, edit and delete while pending via PrintJobPolicy. (done 2026-09-30)
+- [x] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin. (done 2026-09-30)
 
 ### Phase 5 Queue (branch phase-5-queue)
 - [ ] P5-01 Staff queue per location with tabs and polled badge.

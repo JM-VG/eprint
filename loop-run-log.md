@@ -17,3 +17,10 @@
 {"run_id":"2026-09-30T09:10:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T09:25:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T09:40:00+08:00","pattern":"e-print-build","duration_s":500,"items_found":1,"actions_taken":2,"escalations":0,"tokens_estimate":40000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T09:55:00+08:00","pattern":"e-print-build","duration_s":700,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T10:15:00+08:00","pattern":"e-print-build","duration_s":900,"items_found":1,"actions_taken":2,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T10:30:00+08:00","pattern":"e-print-build","duration_s":700,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T10:55:00+08:00","pattern":"e-print-build","duration_s":1200,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":110000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T11:10:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":80000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T11:40:00+08:00","pattern":"e-print-build","duration_s":900,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T12:00:00+08:00","pattern":"e-print-build","duration_s":900,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
