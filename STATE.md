@@ -24,7 +24,7 @@ Phase 7 in progress.
 ## Rejections
 | Task id | Attempts | Reasons |
 | --- | --- | --- |
-| P7-06 | 1 | (1) duplicate check collapsed genuinely identical rows within the same file; (2) re-running a file with GCash rows failed on reference uniqueness instead of skipping |
+| P7-06 | 2 | (1) duplicate check collapsed identical rows in one file; (2) GCash re-run failed on reference uniqueness; attempt 2: a new GCash row could be skipped by the cash-style count when an already-imported GCash row shared its key |
 
 ## Needs human review
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
