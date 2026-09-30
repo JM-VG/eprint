@@ -8,8 +8,10 @@ use App\Http\Controllers\Admin\StudentApprovalController;
 use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
+use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\StationController;
+use App\Http\Controllers\Student\DocumentJobController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,12 +32,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    Route::post('/api/price-estimate', PriceEstimateController::class)
+        ->middleware('throttle:60,1')->name('api.price-estimate');
+
     Route::post('/api/heartbeat', HeartbeatController::class)
         ->middleware('role:staff,admin')->name('api.heartbeat');
 
     // Student pages (print and photo jobs) are added in Phase 4.
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
-        //
+        Route::get('/jobs/create', [DocumentJobController::class, 'create'])->name('jobs.create');
+        Route::post('/jobs', [DocumentJobController::class, 'store'])->name('jobs.store');
     });
 
     // Counter pages for staff; admins do everything staff do. EnsureStation joins in Phase 3.
