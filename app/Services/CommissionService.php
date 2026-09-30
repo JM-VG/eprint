@@ -13,6 +13,7 @@ use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\WalkinItem;
+use App\Notifications\JobClaimed;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -28,7 +29,7 @@ class CommissionService
      */
     public function claim(PrintJob $job, User $receiver, PaymentMethod $method, ?string $referenceNo = null): Sale
     {
-        return DB::transaction(function () use ($job, $receiver, $method, $referenceNo) {
+        $sale = DB::transaction(function () use ($job, $receiver, $method, $referenceNo) {
             $amount = number_format((float) ($job->final_total ?? $job->estimated_total ?? 0), 2, '.', '');
             $note = $method === PaymentMethod::Gcash ? "Paid by GCash, ref {$referenceNo}" : 'Paid in cash';
 
@@ -60,6 +61,14 @@ class CommissionService
 
             return $sale;
         });
+
+        $job = $sale->printJob->load(['user', 'location']);
+        $receiver->notify(new JobClaimed($job, $sale, forStaff: true));
+        if ($job->user && $job->user->isNot($receiver)) {
+            $job->user->notify(new JobClaimed($job, $sale, forStaff: false));
+        }
+
+        return $sale;
     }
 
     /**

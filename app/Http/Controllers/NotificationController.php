@@ -24,6 +24,30 @@ class NotificationController extends Controller
         return response()->json(['unread' => $request->user()->unreadNotifications()->count()]);
     }
 
+    /**
+     * Unread notifications from the last 15 minutes, shown as pop-ups by resources/js/notification-bell.js.
+     */
+    public function recent(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'unread' => $user->unreadNotifications()->count(),
+            'recent' => $user->unreadNotifications()
+                ->where('created_at', '>=', now()->subMinutes(15))
+                ->limit(5)
+                ->get()
+                ->map(fn ($n) => [
+                    'id' => $n->id,
+                    'kind' => $n->data['kind'] ?? null,
+                    'message' => $n->data['message'] ?? '',
+                    'url' => $n->data['url'] ?? null,
+                    'read_url' => route('notifications.read', $n->id),
+                ])
+                ->values(),
+        ]);
+    }
+
     public function read(Request $request, string $id): RedirectResponse
     {
         $notification = $request->user()->notifications()->findOrFail($id);

@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/api/notifications/unread-count', [NotificationController::class, 'count'])->name('api.notifications.count');
+    Route::get('/api/notifications/recent', [NotificationController::class, 'recent'])->name('api.notifications.recent');
 
     Route::post('/api/price-estimate', PriceEstimateController::class)
         ->middleware('throttle:60,1')->name('api.price-estimate');

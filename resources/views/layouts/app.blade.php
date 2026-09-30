@@ -12,39 +12,39 @@
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600|montserrat:800i,900i&display=swap" rel="stylesheet" />
+        <link rel="icon" type="image/png" href="{{ asset('images/eprint-logo-64.png') }}">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased {{ $dark ? 'bg-neutral-950' : 'bg-gray-100' }}">
+        <div class="min-h-screen {{ $dark ? 'bg-neutral-950 text-neutral-100' : 'bg-gray-100' }}">
             <x-availability-banner />
             <x-announcement-banner />
 
             @include('layouts.navigation')
 
-            <div class="md:flex">
-                <x-sidebar />
+            <div class="pb-32">
+                <!-- Page Heading -->
+                @isset($header)
+                    <header class="bg-white shadow">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
 
-                <div class="flex-1 min-w-0">
-                    <!-- Page Heading -->
-                    @isset($header)
-                        <header class="bg-white shadow">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endisset
+                <x-flash-messages />
 
-                    <x-flash-messages />
-
-                    <!-- Page Content -->
-                    <main>
-                        {{ $slot }}
-                    </main>
-                </div>
+                <!-- Page Content -->
+                <main>
+                    {{ $slot }}
+                </main>
             </div>
         </div>
+
+        <x-sidebar />
+        <x-notification-toasts />
     </body>
 </html>

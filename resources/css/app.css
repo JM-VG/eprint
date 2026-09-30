@@ -1,3 +1,88 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .dash-card {
+        @apply rounded-2xl border border-white/10 bg-neutral-900 p-5;
+    }
+    .dash-eyebrow {
+        @apply text-xs font-medium text-neutral-400;
+    }
+    .dash-tile {
+        @apply rounded-xl border border-white/5 bg-neutral-800/60 p-3 transition-colors;
+    }
+    a.dash-tile:hover {
+        @apply border-brand-yellow/30 bg-neutral-800;
+    }
+}
+
+@property --glow-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+.glow-effect {
+    transform: scale(var(--glow-scale, 1)) translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.glow-effect--rotate {
+    animation: glow-rotate var(--glow-duration) linear infinite;
+}
+
+.glow-effect--colorShift {
+    animation: glow-rotate var(--glow-duration) linear infinite alternate;
+}
+
+.glow-effect--pulse {
+    animation: glow-pulse var(--glow-duration) linear infinite alternate;
+}
+
+.glow-effect--breathe {
+    animation: glow-breathe var(--glow-duration) linear infinite alternate;
+}
+
+.glow-effect--flowHorizontal {
+    background-size: 200% 100% !important;
+    animation: glow-flow var(--glow-duration) linear infinite alternate;
+}
+
+@keyframes glow-rotate {
+    to { --glow-angle: 360deg; }
+}
+
+@keyframes glow-pulse {
+    0% { transform: scale(var(--glow-scale)); opacity: 0.5; }
+    50% { transform: scale(calc(var(--glow-scale) * 1.1)); opacity: 0.8; }
+    100% { transform: scale(var(--glow-scale)); opacity: 0.5; }
+}
+
+@keyframes glow-breathe {
+    0%, 100% { transform: scale(var(--glow-scale)); }
+    50% { transform: scale(calc(var(--glow-scale) * 1.05)); }
+}
+
+@keyframes glow-flow {
+    to { background-position: 100% 0; }
+}
+
+.toast-in {
+    animation: toast-in 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.1) both;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateX(2rem) scale(0.96); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .glow-effect, .toast-in { animation: none !important; }
+}
+
+[x-cloak] { display: none !important; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

@@ -12,7 +12,49 @@ use App\Models\Sale;
 use App\Models\Setting;
 use App\Models\StationSession;
 use App\Models\User;
+use App\Notifications\JobClaimed;
 use App\Services\CommissionService;
+
+describe('claim notifications', function () {
+    it('notifies the student who picked up the print and the staff who confirmed payment', function () {
+        $this->actingAs($this->staff)
+            ->post(route('staff.claim.store'), ['code' => 'EP-CLM2', 'payment_method' => 'gcash', 'reference_no' => '1234567890123']);
+
+        $studentNote = $this->student->notifications()->sole();
+        expect($studentNote->type)->toBe(JobClaimed::class)
+            ->and($studentNote->data['kind'])->toBe('job_claimed')
+            ->and($studentNote->data['message'])->toContain('EP-CLM2')->toContain('₱45.50')->toContain('GCash')
+            ->and($studentNote->data['url'])->toBe(route('student.jobs.show', $this->job));
+
+        $staffNote = $this->staff->notifications()->sole();
+        expect($staffNote->data['message'])->toContain('Claim confirmed')->toContain($this->student->name)->toContain('Commission +₱4.55')
+            ->and($staffNote->data['url'])->toBe(route('staff.commission'));
+    });
+
+    it('sends nothing when the claim fails', function () {
+        $this->job->forceFill(['status' => JobStatus::Printing])->save();
+
+        $this->actingAs($this->staff)->post(route('staff.claim.store'), ['code' => 'EP-CLM2', 'payment_method' => 'cash']);
+
+        expect($this->student->notifications()->count())->toBe(0)
+            ->and($this->staff->notifications()->count())->toBe(0);
+    });
+
+    it('lists fresh unread notifications for the pop-up, own only', function () {
+        app(CommissionService::class)->claim($this->job, $this->staff, PaymentMethod::Cash);
+
+        $this->actingAs($this->student)
+            ->getJson(route('api.notifications.recent'))
+            ->assertOk()
+            ->assertJsonPath('unread', 1)
+            ->assertJsonCount(1, 'recent')
+            ->assertJsonPath('recent.0.kind', 'job_claimed')
+            ->assertJsonPath('recent.0.url', route('student.jobs.show', $this->job));
+
+        $this->student->unreadNotifications->markAsRead();
+        $this->actingAs($this->student)->getJson(route('api.notifications.recent'))->assertJsonCount(0, 'recent');
+    });
+});
 
 beforeEach(function () {
     Setting::create(['key' => 'commission_rate', 'value' => '10']);
