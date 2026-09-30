@@ -94,7 +94,7 @@ Phase 6 in progress.
 ### Phase 6 Payments and sales (branch phase-6-sales)
 - [x] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction. (done 2026-09-30)
 - [x] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used. (done 2026-09-30)
-- [ ] P6-03 Staff commission dashboard.
+- [x] P6-03 Staff commission dashboard. (done 2026-09-30)
 - [ ] P6-04 [HUMAN-REVIEW] Admin payouts.
 
 ### Phase 7 Reports and launch (branch phase-7-launch)

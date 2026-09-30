@@ -14,6 +14,7 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Staff\ClaimController;
+use App\Http\Controllers\Staff\CommissionController;
 use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
@@ -81,6 +82,7 @@ Route::middleware('auth')->group(function () {
         // Own jobs (source staff_job) do not need an open station.
         Route::get('/jobs/create', [SubmitJobController::class, 'create'])->name('jobs.create');
         Route::post('/jobs', [SubmitJobController::class, 'store'])->name('jobs.store');
+        Route::get('/commission', [CommissionController::class, 'index'])->name('commission');
 
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {
