@@ -1,7 +1,7 @@
 # E-Print Build State
 
 ## Current phase
-Phase 4
+Phase 5
 
 ## Phase status
 Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
@@ -10,7 +10,9 @@ Phase 2 complete, reviewed by Claude: 184 tests pass; MySQL 8 migrate:fresh --se
 Phase 2 merged (2026-09-30, merged by Claude at the human's request)
 Phase 3 complete, reviewed by Claude: 244 tests pass; MySQL 8 migrate/seed/clock-in/availability/idle-close/shift-history/reset clean. Review fix: APP_TIMEZONE defaults to Asia/Manila.
 Phase 3 merged (2026-09-30, merged by Claude at the human's request)
-Phase 4 in progress.
+Phase 4 complete, reviewed by Claude: 398 tests pass, Pint clean. MySQL re-check skipped (server was stopped for low memory); Phase 4 added no migrations, schema last verified on MySQL 8 at Phase 3.
+Phase 4 merged (2026-09-30, merged by Claude at the human's request)
+Phase 5 in progress.
 
 ## High Priority
 (none)
