@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local AI/dev tooling (kept on disk, not in the repo)
+/.claude
+/.serena
+/MASTER_PROMPT.md
+/STATE.md
+/loop-*.md
