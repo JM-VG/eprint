@@ -1,7 +1,7 @@
 # E-Print Build State
 
 ## Current phase
-Phase 5
+Phase 6
 
 ## Phase status
 Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
@@ -12,7 +12,9 @@ Phase 3 complete, reviewed by Claude: 244 tests pass; MySQL 8 migrate/seed/clock
 Phase 3 merged (2026-09-30, merged by Claude at the human's request)
 Phase 4 complete, reviewed by Claude: 398 tests pass, Pint clean. MySQL re-check skipped (server was stopped for low memory); Phase 4 added no migrations, schema last verified on MySQL 8 at Phase 3.
 Phase 4 merged (2026-09-30, merged by Claude at the human's request)
-Phase 5 in progress.
+Phase 5 complete, reviewed by Claude: 494 tests pass, Pint clean; no migrations in Phase 5 (MySQL schema unchanged since Phase 3 check).
+Phase 5 merged (2026-09-30, merged by Claude at the human's request)
+Phase 6 in progress.
 
 ## High Priority
 (none)
@@ -31,6 +33,8 @@ Phase 5 in progress.
 - P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
 
 ## Notes
+- 2026-09-30: human instructed to continue past the report-only threshold: "lets finish this project. continue finish it". Caps in loop-budget.md left unchanged; build/verify/commit cycle continues per task.
+- 2026-09-30: daily budget at 82.5% (2,474,000 of 3,000,000 logged) after P5-02; loop switched to report-only. Next task: P5-03. Raise Max tokens/day in loop-budget.md (human only) or resume after the daily reset.
 - Bootstrap completed 2026-09-30.
 - P1-01 verifier note: users.name is still NOT NULL; student signup (P2-01) must fill name or add a migration making it nullable.
 - P1-02 verifier note: print_jobs.user_id cascades on user delete (Breeze self-delete wipes a student's job history; sales survive). gcash_payments.sale_id cascades with its sale. Revisit when policies land (disable accounts instead of deleting).
@@ -41,6 +45,7 @@ Phase 5 in progress.
 - P2-03 notes: EnsureApproved and EnsurePasswordChanged run on the whole web group. student./staff./admin. route groups in routes/web.php are empty; each later task must add its routes inside the right group and test role access.
 - P4-04 verifier notes: config/filesystems.php local disk has 'serve' => true; P4-07 should set it false so uploads are only reachable via FileController. Claim-code check-then-insert can race (unique index blocks it, user sees an error); consider retry on unique violation. Submit route has no rate limit.
 - P4-07 verifier note: an original_name with control characters (newline/tab) makes the download 500 (fails closed); consider stripping control chars at upload.
+- P5-02 verifier notes: AcceptJobRequest requires page_count even for photo (sets) jobs; accept() computes sheets_used before the row lock; no test for accepting a DOCX with null page_count.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -77,10 +82,10 @@ Phase 5 in progress.
 - [x] P4-07 [HUMAN-REVIEW] FileController with authorization tests for owner, other student, staff, admin. (done 2026-09-30)
 
 ### Phase 5 Queue (branch phase-5-queue)
-- [ ] P5-01 Staff queue per location with tabs and polled badge.
-- [ ] P5-02 JobStatusService with allowed transitions, job_logs, accept and reject rules.
-- [ ] P5-03 JobReady notification and in-app bell with unread count endpoint.
-- [ ] P5-04 Staff and admin job submission with source staff_job.
+- [x] P5-01 Staff queue per location with tabs and polled badge. (done 2026-09-30)
+- [x] P5-02 JobStatusService with allowed transitions, job_logs, accept and reject rules. (done 2026-09-30)
+- [x] P5-03 JobReady notification and in-app bell with unread count endpoint. (done 2026-09-30)
+- [x] P5-04 Staff and admin job submission with source staff_job. (done 2026-09-30)
 
 ### Phase 6 Payments and sales (branch phase-6-sales)
 - [ ] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction.

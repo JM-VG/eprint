@@ -9,9 +9,14 @@ use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\Api\PriceEstimateController;
+use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\JobActionController;
+use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
+use App\Http\Controllers\Staff\SubmitJobController;
 use App\Http\Controllers\Student\DocumentJobController;
 use App\Http\Controllers\Student\JobController;
 use App\Http\Controllers\Student\PhotoJobController;
@@ -37,11 +42,19 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/files/jobs/{job}', [FileController::class, 'show'])->name('files.jobs.show');
 
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::get('/api/notifications/unread-count', [NotificationController::class, 'count'])->name('api.notifications.count');
+
     Route::post('/api/price-estimate', PriceEstimateController::class)
         ->middleware('throttle:60,1')->name('api.price-estimate');
 
     Route::post('/api/heartbeat', HeartbeatController::class)
         ->middleware('role:staff,admin')->name('api.heartbeat');
+
+    Route::get('/api/queue-count', QueueCountController::class)
+        ->middleware('role:staff,admin')->name('api.queue-count');
 
     // Student pages (print and photo jobs) are added in Phase 4.
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
@@ -63,9 +76,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/station/switch', [StationController::class, 'switch'])->name('station.switch');
         Route::post('/station/clock-out', [StationController::class, 'clockOut'])->name('station.clock-out');
 
+        // Own jobs (source staff_job) do not need an open station.
+        Route::get('/jobs/create', [SubmitJobController::class, 'create'])->name('jobs.create');
+        Route::post('/jobs', [SubmitJobController::class, 'store'])->name('jobs.store');
+
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {
-            //
+            Route::get('/queue', [QueueController::class, 'index'])->name('queue');
+            Route::post('/jobs/{job}/accept', [JobActionController::class, 'accept'])->name('jobs.accept');
+            Route::post('/jobs/{job}/reject', [JobActionController::class, 'reject'])->name('jobs.reject');
+            Route::post('/jobs/{job}/printing', [JobActionController::class, 'printing'])->name('jobs.printing');
+            Route::post('/jobs/{job}/ready', [JobActionController::class, 'ready'])->name('jobs.ready');
         });
     });
 

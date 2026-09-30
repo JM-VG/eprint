@@ -10,8 +10,13 @@
                                 <a href="{{ $item['url'] }}"
                                    data-menu="{{ $item['key'] }}"
                                    @if ($item['active']) aria-current="page" @endif
-                                   class="block px-3 py-2 rounded-md text-sm font-medium {{ $item['active'] ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                                    {{ $item['label'] }}
+                                   class="flex items-center justify-between gap-2 px-3 py-2 rounded-md text-sm font-medium {{ $item['active'] ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100' }}">
+                                    <span>{{ $item['label'] }}</span>
+                                    @if ($item['key'] === 'queue')
+                                        <span data-queue-badge data-endpoint="{{ route('api.queue-count') }}" hidden
+                                              aria-label="{{ __('pending jobs') }}"
+                                              class="min-w-5 px-1.5 rounded-full bg-red-600 text-white text-xs text-center"></span>
+                                    @endif
                                 </a>
                             @else
                                 <span data-menu="{{ $item['key'] }}"
