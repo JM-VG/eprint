@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\ClaimController;
 use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
@@ -87,6 +88,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/jobs/{job}/reject', [JobActionController::class, 'reject'])->name('jobs.reject');
             Route::post('/jobs/{job}/printing', [JobActionController::class, 'printing'])->name('jobs.printing');
             Route::post('/jobs/{job}/ready', [JobActionController::class, 'ready'])->name('jobs.ready');
+            Route::get('/claim', [ClaimController::class, 'show'])->name('claim');
+            Route::post('/claim', [ClaimController::class, 'store'])->name('claim.store');
         });
     });
 

@@ -32,6 +32,8 @@ Phase 6 in progress.
 
 - P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
 
+- P6-01 Claim flow: app/Services/CommissionService.php, app/Http/Controllers/Staff/ClaimController.php, app/Http/Requests/Staff/ClaimRequest.php, tests/Feature/Staff/ClaimTest.php, app/Services/JobStatusService.php
+
 ## Notes
 - 2026-09-30: human instructed to continue past the report-only threshold: "lets finish this project. continue finish it". Caps in loop-budget.md left unchanged; build/verify/commit cycle continues per task.
 - 2026-09-30: daily budget at 82.5% (2,474,000 of 3,000,000 logged) after P5-02; loop switched to report-only. Next task: P5-03. Raise Max tokens/day in loop-budget.md (human only) or resume after the daily reset.
@@ -88,7 +90,7 @@ Phase 6 in progress.
 - [x] P5-04 Staff and admin job submission with source staff_job. (done 2026-09-30)
 
 ### Phase 6 Payments and sales (branch phase-6-sales)
-- [ ] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction.
+- [x] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction. (done 2026-09-30)
 - [ ] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used.
 - [ ] P6-03 Staff commission dashboard.
 - [ ] P6-04 [HUMAN-REVIEW] Admin payouts.
