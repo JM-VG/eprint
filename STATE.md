@@ -31,6 +31,7 @@ Phase 5 in progress.
 - P4-07 FileController: app/Http/Controllers/FileController.php, tests/Feature/FileAccessTest.php, config/filesystems.php (local serve => false), app/Policies/PrintJobPolicy.php
 
 ## Notes
+- 2026-09-30: daily budget at 82.5% (2,474,000 of 3,000,000 logged) after P5-02; loop switched to report-only. Next task: P5-03. Raise Max tokens/day in loop-budget.md (human only) or resume after the daily reset.
 - Bootstrap completed 2026-09-30.
 - P1-01 verifier note: users.name is still NOT NULL; student signup (P2-01) must fill name or add a migration making it nullable.
 - P1-02 verifier note: print_jobs.user_id cascades on user delete (Breeze self-delete wipes a student's job history; sales survive). gcash_payments.sale_id cascades with its sale. Revisit when policies land (disable accounts instead of deleting).
