@@ -22,6 +22,7 @@ Phase 6 in progress.
 ## Rejections
 | Task id | Attempts | Reasons |
 | --- | --- | --- |
+| P6-04 | 1 | (1) zero-amount payouts not refused when unpaid sales carry 0.00 commission (default rate 0); (2) minor: preview summed with float |
 
 ## Needs human review
 - P2-01 Student signup: app/Services/StudentRegistrationService.php, app/Http/Requests/Auth/StudentRegisterRequest.php, app/Http/Controllers/Auth/RegisteredUserController.php, app/Models/Setting.php, app/Notifications/NewSignup.php, resources/views/auth/register.blade.php, resources/views/auth/registration-pending.blade.php, routes/auth.php, tests/Feature/Auth/RegistrationTest.php
