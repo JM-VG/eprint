@@ -41,6 +41,7 @@ Phase 5 in progress.
 - P2-03 notes: EnsureApproved and EnsurePasswordChanged run on the whole web group. student./staff./admin. route groups in routes/web.php are empty; each later task must add its routes inside the right group and test role access.
 - P4-04 verifier notes: config/filesystems.php local disk has 'serve' => true; P4-07 should set it false so uploads are only reachable via FileController. Claim-code check-then-insert can race (unique index blocks it, user sees an error); consider retry on unique violation. Submit route has no rate limit.
 - P4-07 verifier note: an original_name with control characters (newline/tab) makes the download 500 (fails closed); consider stripping control chars at upload.
+- P5-02 verifier notes: AcceptJobRequest requires page_count even for photo (sets) jobs; accept() computes sheets_used before the row lock; no test for accepting a DOCX with null page_count.
 - P1-05 note: sidebar menu items point at planned route names (app/View/Components/Sidebar.php); items stay disabled until a route with that exact name exists. Align names when building each page.
 
 ## Task List
@@ -78,7 +79,7 @@ Phase 5 in progress.
 
 ### Phase 5 Queue (branch phase-5-queue)
 - [x] P5-01 Staff queue per location with tabs and polled badge. (done 2026-09-30)
-- [ ] P5-02 JobStatusService with allowed transitions, job_logs, accept and reject rules.
+- [x] P5-02 JobStatusService with allowed transitions, job_logs, accept and reject rules. (done 2026-09-30)
 - [ ] P5-03 JobReady notification and in-app bell with unread count endpoint.
 - [ ] P5-04 Staff and admin job submission with source staff_job.
 

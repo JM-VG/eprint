@@ -30,6 +30,7 @@
                             <th class="px-4 py-3 font-medium">{{ __('Pages / sets') }}</th>
                             <th class="px-4 py-3 font-medium">{{ __('Status') }}</th>
                             <th class="px-4 py-3 font-medium">{{ __('Waiting since') }}</th>
+                            <th class="px-4 py-3 font-medium">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -50,10 +51,45 @@
                                 </td>
                                 <td class="px-4 py-3"><x-job-status :status="$job->status" /></td>
                                 <td class="px-4 py-3 text-gray-500">{{ $job->created_at->diffForHumans() }}</td>
+                                <td class="px-4 py-3">
+                                    @if ($job->status === \App\Enums\JobStatus::Pending)
+                                        <div class="flex flex-col gap-2 min-w-64">
+                                            <form method="POST" action="{{ route('staff.jobs.accept', $job) }}" class="flex flex-wrap items-center gap-2">
+                                                @csrf
+                                                <label class="sr-only" for="page_count-{{ $job->id }}">{{ __('Pages') }}</label>
+                                                <input id="page_count-{{ $job->id }}" name="page_count" type="number" min="1" required
+                                                       value="{{ $job->page_count }}" placeholder="{{ __('Pages') }}" class="w-20 rounded-md border-gray-300 text-sm">
+                                                <label class="sr-only" for="final_total-{{ $job->id }}">{{ __('Final total') }}</label>
+                                                <input id="final_total-{{ $job->id }}" name="final_total" type="number" step="0.01" min="0" required
+                                                       value="{{ $job->estimated_total }}" placeholder="₱" class="w-24 rounded-md border-gray-300 text-sm">
+                                                <button class="px-3 py-1.5 rounded-md bg-green-600 text-white text-sm hover:bg-green-700">{{ __('Accept') }}</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('staff.jobs.reject', $job) }}" class="flex flex-wrap items-center gap-2">
+                                                @csrf
+                                                <label class="sr-only" for="reason-{{ $job->id }}">{{ __('Reason') }}</label>
+                                                <input id="reason-{{ $job->id }}" name="reason" required maxlength="500" placeholder="{{ __('Reject reason') }}"
+                                                       class="w-44 rounded-md border-gray-300 text-sm">
+                                                <button class="px-3 py-1.5 rounded-md bg-red-600 text-white text-sm hover:bg-red-700">{{ __('Reject') }}</button>
+                                            </form>
+                                        </div>
+                                    @elseif ($job->status === \App\Enums\JobStatus::Accepted)
+                                        <form method="POST" action="{{ route('staff.jobs.printing', $job) }}">
+                                            @csrf
+                                            <button class="px-3 py-1.5 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700">{{ __('Start printing') }}</button>
+                                        </form>
+                                    @elseif ($job->status === \App\Enums\JobStatus::Printing)
+                                        <form method="POST" action="{{ route('staff.jobs.ready', $job) }}">
+                                            @csrf
+                                            <button class="px-3 py-1.5 rounded-md bg-green-600 text-white text-sm hover:bg-green-700">{{ __('Mark ready') }}</button>
+                                        </form>
+                                    @else
+                                        <span class="text-gray-500 text-sm">{{ __('Waiting for pickup') }}</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-4 py-6 text-center text-gray-500">{{ __('No jobs waiting at :location.', ['location' => $location->name]) }}</td>
+                                <td colspan="8" class="px-4 py-6 text-center text-gray-500">{{ __('No jobs waiting at :location.', ['location' => $location->name]) }}</td>
                             </tr>
                         @endforelse
                     </tbody>

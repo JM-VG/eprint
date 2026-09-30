@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\PriceEstimateController;
 use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Student\DocumentJobController;
@@ -71,6 +72,10 @@ Route::middleware('auth')->group(function () {
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {
             Route::get('/queue', [QueueController::class, 'index'])->name('queue');
+            Route::post('/jobs/{job}/accept', [JobActionController::class, 'accept'])->name('jobs.accept');
+            Route::post('/jobs/{job}/reject', [JobActionController::class, 'reject'])->name('jobs.reject');
+            Route::post('/jobs/{job}/printing', [JobActionController::class, 'printing'])->name('jobs.printing');
+            Route::post('/jobs/{job}/ready', [JobActionController::class, 'ready'])->name('jobs.ready');
         });
     });
 
