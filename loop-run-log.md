@@ -30,3 +30,4 @@
 {"run_id":"2026-09-30T13:25:00+08:00","pattern":"e-print-build","duration_s":600,"items_found":1,"actions_taken":2,"escalations":0,"tokens_estimate":60000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T13:45:00+08:00","pattern":"e-print-build","duration_s":900,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
 {"run_id":"2026-09-30T14:05:00+08:00","pattern":"e-print-build","duration_s":900,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":90000,"outcome":"fix-proposed"}
+{"run_id":"2026-09-30T14:20:00+08:00","pattern":"e-print-build","duration_s":700,"items_found":1,"actions_taken":1,"escalations":0,"tokens_estimate":70000,"outcome":"fix-proposed"}
