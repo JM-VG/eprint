@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\AnnouncementFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,5 +32,16 @@ class Announcement extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Announcements whose window includes now; a missing start or end is open-ended.
+     *
+     * @param  Builder<Announcement>  $query
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
     }
 }

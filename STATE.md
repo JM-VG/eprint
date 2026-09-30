@@ -103,7 +103,7 @@ Phase 7 in progress.
 
 ### Phase 7 Reports and launch (branch phase-7-launch)
 - [x] P7-01 Sales report filters and CSV export. (done 2026-09-30)
-- [ ] P7-02 Announcements CRUD and banner.
+- [x] P7-02 Announcements CRUD and banner. (done 2026-09-30)
 - [ ] P7-03 Student and admin dashboards.
 - [ ] P7-04 CleanupOldFiles command and schedule.
 - [ ] P7-05 Audit log page.

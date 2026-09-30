@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\ServiceController;
@@ -110,6 +111,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/reports/sales', [SalesReportController::class, 'index'])->name('reports.sales');
         Route::get('/reports/sales/export', [SalesReportController::class, 'export'])->name('reports.sales.export');
+
+        Route::resource('announcements', AnnouncementController::class)->except('show');
 
         Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
         Route::post('/payouts', [PayoutController::class, 'store'])->name('payouts.store');
