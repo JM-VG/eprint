@@ -18,6 +18,7 @@ use App\Http\Controllers\Staff\JobActionController;
 use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Staff\SubmitJobController;
+use App\Http\Controllers\Staff\WalkinSaleController;
 use App\Http\Controllers\Student\DocumentJobController;
 use App\Http\Controllers\Student\JobController;
 use App\Http\Controllers\Student\PhotoJobController;
@@ -90,6 +91,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/jobs/{job}/ready', [JobActionController::class, 'ready'])->name('jobs.ready');
             Route::get('/claim', [ClaimController::class, 'show'])->name('claim');
             Route::post('/claim', [ClaimController::class, 'store'])->name('claim.store');
+            Route::get('/walk-in', [WalkinSaleController::class, 'create'])->name('walkin.create');
+            Route::post('/walk-in', [WalkinSaleController::class, 'store'])->name('walkin.store');
         });
     });
 

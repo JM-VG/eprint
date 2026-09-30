@@ -34,6 +34,8 @@ Phase 6 in progress.
 
 - P6-01 Claim flow: app/Services/CommissionService.php, app/Http/Controllers/Staff/ClaimController.php, app/Http/Requests/Staff/ClaimRequest.php, tests/Feature/Staff/ClaimTest.php, app/Services/JobStatusService.php
 
+- P6-02 Walk-in sales: app/Services/CommissionService.php (recordWalkin), app/Http/Requests/Staff/WalkinSaleRequest.php, app/Http/Controllers/Staff/WalkinSaleController.php, resources/js/walkin.js, tests/Feature/Staff/WalkinSaleTest.php
+
 ## Notes
 - 2026-09-30: human instructed to continue past the report-only threshold: "lets finish this project. continue finish it". Caps in loop-budget.md left unchanged; build/verify/commit cycle continues per task.
 - 2026-09-30: daily budget at 82.5% (2,474,000 of 3,000,000 logged) after P5-02; loop switched to report-only. Next task: P5-03. Raise Max tokens/day in loop-budget.md (human only) or resume after the daily reset.
@@ -91,7 +93,7 @@ Phase 6 in progress.
 
 ### Phase 6 Payments and sales (branch phase-6-sales)
 - [x] P6-01 [HUMAN-REVIEW] Claim flow with cash and GCash, unique reference, CommissionService, credit rules, transaction. (done 2026-09-30)
-- [ ] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used.
+- [x] P6-02 [HUMAN-REVIEW] Walk-in sale form with line items and sheets_used. (done 2026-09-30)
 - [ ] P6-03 Staff commission dashboard.
 - [ ] P6-04 [HUMAN-REVIEW] Admin payouts.
 

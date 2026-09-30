@@ -9,8 +9,10 @@ use App\Enums\SaleSource;
 use App\Models\GcashPayment;
 use App\Models\PrintJob;
 use App\Models\Sale;
+use App\Models\Service;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\WalkinItem;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -53,6 +55,51 @@ class CommissionService
                     'print_job_id' => $job->id,
                     'sale_id' => $sale->id,
                     'received_by' => $receiver->id,
+                ]);
+            }
+
+            return $sale;
+        });
+    }
+
+    /**
+     * Record a walk-in sale with its line items. Credited to the staff who entered it, at their station.
+     * Each line keeps the price list unit price as a snapshot; the amount may be edited by staff.
+     *
+     * @param  list<array{service_id: int, quantity: int, sheets_used: int, amount: string}>  $items
+     */
+    public function recordWalkin(User $staff, int $locationId, array $items, PaymentMethod $method, ?string $referenceNo = null): Sale
+    {
+        return DB::transaction(function () use ($staff, $locationId, $items, $method, $referenceNo) {
+            $total = array_reduce($items, fn (string $sum, array $item) => bcadd($sum, (string) $item['amount'], 2), '0.00');
+
+            $sale = $this->recordSale(
+                creditedTo: $staff->id,
+                locationId: $locationId,
+                source: SaleSource::Walkin,
+                method: $method,
+                amount: $total,
+            );
+
+            $prices = Service::whereIn('id', array_column($items, 'service_id'))->pluck('price', 'id');
+
+            foreach ($items as $item) {
+                WalkinItem::create([
+                    'sale_id' => $sale->id,
+                    'service_id' => $item['service_id'],
+                    'quantity' => (int) $item['quantity'],
+                    'sheets_used' => (int) $item['sheets_used'],
+                    'unit_price' => $prices[$item['service_id']],
+                    'amount' => number_format((float) $item['amount'], 2, '.', ''),
+                ]);
+            }
+
+            if ($method === PaymentMethod::Gcash) {
+                GcashPayment::create([
+                    'reference_no' => $referenceNo,
+                    'amount' => $total,
+                    'sale_id' => $sale->id,
+                    'received_by' => $staff->id,
                 ]);
             }
 
