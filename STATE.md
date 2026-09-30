@@ -1,7 +1,7 @@
 # E-Print Build State
 
 ## Current phase
-Phase 6
+Phase 7
 
 ## Phase status
 Phase 1 complete, reviewed by Claude (MySQL rollback bug found and fixed in 985bda1)
@@ -14,7 +14,9 @@ Phase 4 complete, reviewed by Claude: 398 tests pass, Pint clean. MySQL re-check
 Phase 4 merged (2026-09-30, merged by Claude at the human's request)
 Phase 5 complete, reviewed by Claude: 494 tests pass, Pint clean; no migrations in Phase 5 (MySQL schema unchanged since Phase 3 check).
 Phase 5 merged (2026-09-30, merged by Claude at the human's request)
-Phase 6 in progress.
+Phase 6 complete, reviewed by Claude: 547 tests pass, Pint clean; no migrations in Phase 6.
+Phase 6 merged (2026-09-30, merged by Claude at the human's request)
+Phase 7 in progress.
 
 ## High Priority
 (none)
