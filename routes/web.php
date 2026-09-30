@@ -9,8 +9,10 @@ use App\Http\Controllers\Admin\UserAccountController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\HeartbeatController;
 use App\Http\Controllers\Api\PriceEstimateController;
+use App\Http\Controllers\Api\QueueCountController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Staff\QueueController;
 use App\Http\Controllers\Staff\StationController;
 use App\Http\Controllers\Student\DocumentJobController;
 use App\Http\Controllers\Student\JobController;
@@ -43,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/heartbeat', HeartbeatController::class)
         ->middleware('role:staff,admin')->name('api.heartbeat');
 
+    Route::get('/api/queue-count', QueueCountController::class)
+        ->middleware('role:staff,admin')->name('api.queue-count');
+
     // Student pages (print and photo jobs) are added in Phase 4.
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         Route::get('/jobs/create', [DocumentJobController::class, 'create'])->name('jobs.create');
@@ -65,7 +70,7 @@ Route::middleware('auth')->group(function () {
 
         // Job-processing pages go inside this group.
         Route::middleware('station')->group(function () {
-            //
+            Route::get('/queue', [QueueController::class, 'index'])->name('queue');
         });
     });
 
