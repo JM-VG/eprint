@@ -99,3 +99,51 @@ it('does not buffer counters', function () {
             ->and($inner->get('counters/items'))->toBe(1);
     });
 });
+
+/**
+ * Counts reads that reach the underlying client.
+ */
+class CountingDatabaseClient extends ArrayDatabaseClient
+{
+    public int $reads = 0;
+
+    public function get(string $path): mixed
+    {
+        $this->reads++;
+
+        return parent::get($path);
+    }
+}
+
+it('can cache reads and invalidates them on writes', function () {
+    $inner = new CountingDatabaseClient(['items' => [1 => ['name' => 'A']]]);
+    $client = new BatchingDatabaseClient($inner);
+    $client->enableReadCache();
+
+    $client->get('items');
+    $client->get('items');
+    expect($inner->reads)->toBe(1);
+
+    $client->update('items/1', ['name' => 'B']);
+    expect($client->get('items'))->toBe([1 => ['name' => 'B']])
+        ->and($inner->reads)->toBe(2);
+
+    $client->get('items/1');
+    $client->increment('items/1/count'); // the fake reads once inside increment
+    expect($client->get('items/1'))->toBe(['name' => 'B', 'count' => 1])
+        ->and($inner->reads)->toBe(5);
+
+    $client->flushReadCache();
+    $client->get('items');
+    expect($inner->reads)->toBe(6);
+});
+
+it('does not cache reads unless enabled', function () {
+    $inner = new CountingDatabaseClient;
+    $client = new BatchingDatabaseClient($inner);
+
+    $client->get('items');
+    $client->get('items');
+
+    expect($inner->reads)->toBe(2);
+});

@@ -56,6 +56,9 @@ return [
 
     'transaction_retries' => (int) env('FIREBASE_TRANSACTION_RETRIES', 5),
 
+    // Cache reads for the rest of a request (writes invalidate what they touch).
+    'read_cache' => (bool) env('FIREBASE_READ_CACHE', true),
+
     /*
     |--------------------------------------------------------------------------
     | Public Web Config

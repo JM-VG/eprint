@@ -15,6 +15,11 @@ use Throwable;
  *
  * Counters and transactions (increment/transaction/push) always go straight
  * to the server: they are atomic on their own and must not be undone.
+ *
+ * Optionally, reads are cached for the rest of the request (or job) so a page
+ * that runs many queries fetches each table once. Every write through this
+ * client invalidates the paths it touches; {@see flushReadCache()} drops it all
+ * (locks do so after acquiring, so guarded code always sees fresh data).
  */
 class BatchingDatabaseClient implements DatabaseClient
 {
@@ -32,11 +37,30 @@ class BatchingDatabaseClient implements DatabaseClient
      */
     private array $savepoints = [];
 
+    /**
+     * Cached reads by path, or null when read caching is off.
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $reads = null;
+
     public function __construct(private DatabaseClient $inner) {}
 
     public function inner(): DatabaseClient
     {
         return $this->inner;
+    }
+
+    public function enableReadCache(): void
+    {
+        $this->reads ??= [];
+    }
+
+    public function flushReadCache(): void
+    {
+        if ($this->reads !== null) {
+            $this->reads = [];
+        }
     }
 
     /**
@@ -86,6 +110,7 @@ class BatchingDatabaseClient implements DatabaseClient
         $this->writes = [];
 
         if ($paths !== []) {
+            $this->forget(array_keys($paths));
             $this->inner->update('', $paths);
         }
     }
@@ -112,7 +137,7 @@ class BatchingDatabaseClient implements DatabaseClient
     public function get(string $path): mixed
     {
         $path = $this->normalize($path);
-        $value = $this->inner->get($path);
+        $value = $this->read($path);
 
         foreach ($this->writes as [$written, $writtenValue]) {
             if ($written === $path) {
@@ -148,6 +173,8 @@ class BatchingDatabaseClient implements DatabaseClient
 
     public function push(string $path, mixed $value): string
     {
+        $this->forget([$this->normalize($path)]);
+
         return $this->inner->push($path, $value);
     }
 
@@ -163,12 +190,54 @@ class BatchingDatabaseClient implements DatabaseClient
 
     public function increment(string $path, int $delta = 1): int
     {
+        $this->forget([$this->normalize($path)]);
+
         return $this->inner->increment($path, $delta);
     }
 
     public function transaction(string $path, callable $callback): mixed
     {
+        $this->forget([$this->normalize($path)]);
+
         return $this->inner->transaction($path, $callback);
+    }
+
+    private function read(string $path): mixed
+    {
+        if ($this->reads === null) {
+            return $this->inner->get($path);
+        }
+
+        if (! array_key_exists($path, $this->reads)) {
+            $this->reads[$path] = $this->inner->get($path);
+        }
+
+        return $this->reads[$path];
+    }
+
+    /**
+     * Drop cached reads of the written paths, their ancestors and descendants.
+     *
+     * @param  list<string>  $written
+     */
+    private function forget(array $written): void
+    {
+        if (! $this->reads) {
+            return;
+        }
+
+        foreach (array_keys($this->reads) as $cached) {
+            foreach ($written as $path) {
+                $cached = (string) $cached;
+
+                if ($cached === $path || $cached === '' || $path === ''
+                    || str_starts_with($cached, $path.'/') || str_starts_with($path, $cached.'/')) {
+                    unset($this->reads[$cached]);
+
+                    break;
+                }
+            }
+        }
     }
 
     private function write(string $path, mixed $value): void

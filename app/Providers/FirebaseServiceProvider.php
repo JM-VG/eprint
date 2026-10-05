@@ -16,6 +16,7 @@ use App\Repositories\SettingRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 
@@ -52,7 +53,17 @@ class FirebaseServiceProvider extends ServiceProvider
 
         // Repositories (and so Eloquent) write through one batching client, so
         // a write batch sees its own changes and commits them atomically.
-        $this->app->singleton(BatchingDatabaseClient::class, fn ($app) => new BatchingDatabaseClient($app->make(DatabaseClient::class)));
+        $this->app->singleton(BatchingDatabaseClient::class, function ($app) {
+            $inner = $app->make(DatabaseClient::class);
+            $client = new BatchingDatabaseClient($inner);
+
+            // Over the network, read each table once per request (or queued job).
+            if ($inner instanceof FirebaseDatabaseClient && $app['config']->get('firebase.read_cache', true)) {
+                $client->enableReadCache();
+            }
+
+            return $client;
+        });
 
         $this->app->when([...array_values(RepositoryRegistry::TABLES), SettingRepository::class, RepositoryRegistry::class])
             ->needs(DatabaseClient::class)
@@ -74,6 +85,8 @@ class FirebaseServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Queue::looping(fn () => $this->app->make(BatchingDatabaseClient::class)->flushReadCache());
+
         Auth::provider('rtdb', fn ($app) => new RealtimeUserProvider(
             $app->make(UserRepository::class),
         ));

@@ -2,6 +2,7 @@
 
 namespace App\Realtime;
 
+use App\Firebase\BatchingDatabaseClient;
 use App\Firebase\DatabaseClient;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -78,6 +79,11 @@ class Locks
 
             if (($lock['owner'] ?? null) === $token) {
                 $this->held[$name] = ['token' => $token, 'depth' => 1];
+
+                // Whatever was read before the lock may already be out of date.
+                if ($this->database instanceof BatchingDatabaseClient) {
+                    $this->database->flushReadCache();
+                }
 
                 return;
             }
