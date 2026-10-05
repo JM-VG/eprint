@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /*
@@ -14,8 +13,9 @@ use Tests\TestCase;
 |
 */
 
+// Every test boots a fresh application, and with it an empty in-memory
+// Realtime Database (ArrayDatabaseClient), so no database reset is needed.
 pest()->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*

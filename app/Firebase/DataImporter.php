@@ -2,49 +2,27 @@
 
 namespace App\Firebase;
 
-use App\Repositories\AnnouncementRepository;
-use App\Repositories\CommissionPayoutRepository;
-use App\Repositories\GcashPaymentRepository;
-use App\Repositories\JobLogRepository;
-use App\Repositories\LocationRepository;
-use App\Repositories\PrintJobRepository;
+use App\Realtime\Database\TableSchema;
+use App\Realtime\Database\Values;
 use App\Repositories\Repository;
-use App\Repositories\SaleRepository;
-use App\Repositories\ServiceRepository;
+use App\Repositories\RepositoryRegistry;
 use App\Repositories\SettingRepository;
-use App\Repositories\StationSessionRepository;
-use App\Repositories\UserRepository;
-use App\Repositories\WalkinItemRepository;
-use DateTimeInterface;
 use Illuminate\Database\Connection;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * One-time backfill of the Firebase Realtime Database from a relational
- * source database. Ids and timestamps are preserved so foreign keys keep
- * pointing at the same records after the application cutover.
+ * One-time backfill of the Firebase Realtime Database from the old
+ * relational database (MySQL, or SQLite for local copies). Ids and
+ * timestamps are preserved so foreign keys keep pointing at the same
+ * records; values are converted to the types the application stores
+ * (ISO-8601 dates, booleans, integers, two-decimal strings).
  */
 class DataImporter
 {
     /**
-     * Relational table => repository that owns the matching RTDB node.
-     *
-     * @var array<string, class-string<Repository>>
+     * Tables copied besides the domain tables.
      */
-    private const TABLES = [
-        'users' => UserRepository::class,
-        'locations' => LocationRepository::class,
-        'services' => ServiceRepository::class,
-        'station_sessions' => StationSessionRepository::class,
-        'print_jobs' => PrintJobRepository::class,
-        'gcash_payments' => GcashPaymentRepository::class,
-        'sales' => SaleRepository::class,
-        'walkin_items' => WalkinItemRepository::class,
-        'commission_payouts' => CommissionPayoutRepository::class,
-        'job_logs' => JobLogRepository::class,
-        'announcements' => AnnouncementRepository::class,
-    ];
+    private const EXTRA_TABLES = ['notifications'];
 
     public function __construct(private string $connection = 'mysql') {}
 
@@ -55,34 +33,37 @@ class DataImporter
     public function import(array $only = []): array
     {
         $counts = [];
+        $registry = app(RepositoryRegistry::class);
 
-        foreach (self::TABLES as $table => $repositoryClass) {
+        foreach ([...array_keys(RepositoryRegistry::TABLES), ...self::EXTRA_TABLES] as $table) {
             if ($only !== [] && ! in_array($table, $only, true)) {
                 continue;
             }
 
-            $counts[$table] = $this->importTable($table, app($repositoryClass));
+            if ($this->hasTable($table)) {
+                $counts[$table] = $this->importTable($table, $registry->for($table));
+            }
         }
 
-        if ($only === [] || in_array('settings', $only, true)) {
+        if (($only === [] || in_array('settings', $only, true)) && $this->hasTable('settings')) {
             $counts['settings'] = $this->importSettings();
         }
 
         return $counts;
     }
 
-    /**
-     * @param  class-string<Repository>|Repository  $repository
-     */
     private function importTable(string $table, Repository $repository): int
     {
         $rows = $this->reader()->table($table)->orderBy('id')->get();
         $maxId = 0;
 
         foreach ($rows as $row) {
-            $record = $this->normalize((array) $row);
+            $record = $this->normalize($table, (array) $row);
             $repository->put($record);
-            $maxId = max($maxId, (int) $record['id']);
+
+            if (is_int($record['id'])) {
+                $maxId = max($maxId, $record['id']);
+            }
         }
 
         if ($maxId > 0) {
@@ -112,21 +93,23 @@ class DataImporter
      * @param  array<string, mixed>  $row
      * @return array<string, mixed>
      */
-    private function normalize(array $row): array
+    private function normalize(string $table, array $row): array
     {
-        foreach ($row as $key => $value) {
-            if ($value instanceof DateTimeInterface) {
-                $row[$key] = Carbon::instance($value)->toIso8601String();
+        $schema = app(TableSchema::class);
 
-                continue;
-            }
+        foreach ($row as $column => $value) {
+            $type = $schema->type($table, $column)
+                ?? (($column === 'id' || str_ends_with($column, '_id')) ? 'int' : null);
 
-            if (($key === 'id' || str_ends_with($key, '_id')) && is_numeric($value) && preg_match('/^-?\d+$/', (string) $value)) {
-                $row[$key] = (int) $value;
-            }
+            $row[$column] = Values::store($value, $type);
         }
 
-        return $row;
+        return array_filter($row, fn ($value) => $value !== null);
+    }
+
+    private function hasTable(string $table): bool
+    {
+        return $this->reader()->getSchemaBuilder()->hasTable($table);
     }
 
     private function reader(): Connection
