@@ -3,8 +3,8 @@
 ## Server checklist
 
 - [ ] Linux server (Ubuntu 22.04+ recommended) with Nginx or Apache and HTTPS.
-- [ ] PHP 8.2 or newer (PHP-FPM) with extensions: `pdo_mysql`, `fileinfo`, `mbstring`, `openssl`, `zip`, `gd`, `bcmath`, `xml`, `curl`, `intl`.
-- [ ] MySQL 8 with an `eprint` database (utf8mb4) and a dedicated user.
+- [ ] PHP 8.2 or newer (PHP-FPM) with extensions: `openssl`, `curl`, `fileinfo`, `mbstring`, `zip`, `gd`, `bcmath`, `xml`, `intl`.
+- [ ] A Firebase project with a **Realtime Database** (the app uses `asia-southeast1`) and a service account key (Project settings → Service accounts → Generate new private key). There is no SQL database.
 - [ ] Composer 2 and Node 18+ (Node is only needed to build assets).
 - [ ] The web root points to the project's `public/` directory, never the project root.
 - [ ] `storage/` and `bootstrap/cache/` are writable by the web server user (e.g. `www-data`).
@@ -30,11 +30,12 @@ APP_DEBUG=false
 APP_URL=https://eprint.example.edu.ph
 APP_TIMEZONE=Asia/Manila
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_DATABASE=eprint
-DB_USERNAME=eprint
-DB_PASSWORD=********
+FIREBASE_DATABASE_URL=https://e-print-e1185-default-rtdb.asia-southeast1.firebasedatabase.app
+FIREBASE_CREDENTIALS=/var/www/eprint/storage/app/firebase/service-account.json   # or FIREBASE_CREDENTIALS_JSON='{...}'
+
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
 
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=a-long-unique-password   # change "change-me"; sign in and change it again afterwards
@@ -43,10 +44,10 @@ EPRINT_DOCX_CONVERSION=false
 EPRINT_SOFFICE_PATH=/usr/bin/soffice
 ```
 
-Then:
+Upload the service account key to `storage/app/firebase/service-account.json` (it is gitignored; keep it readable only by `www-data`). Then:
 
 ```bash
-php artisan migrate --force
+php artisan firebase:ping --write  # checks the credentials and the database URL
 php artisan db:seed --force      # locations, admin, sample price list (prices 0), default settings
 php artisan storage:link         # public disk, used for the GCash QR image
 php artisan config:cache
@@ -68,7 +69,7 @@ The scheduler closes idle stations every minute and cleans old files daily at 02
 * * * * * cd /var/www/eprint && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Add it with `sudo crontab -u www-data -e`. The schedule uses `withoutOverlapping()`, which needs a cache store that supports locks. The default `database` cache store (its table is created by the migrations) works, and so do `redis` and `file`.
+Add it with `sudo crontab -u www-data -e`. The schedule uses `withoutOverlapping()`, which needs a cache store that supports locks: use `file` (the default) or `redis`. It also runs `firebase:reconcile --fix` daily at 03:00; see "Data consistency" below.
 
 ## php.ini limits
 
@@ -117,6 +118,21 @@ php artisan sales:import-legacy storage/legacy-sales.csv
 
 One invalid row stops the whole import, and errors are reported by line number. Re-running the same file skips rows that were already imported.
 
+## Moving data from the old MySQL database (one time)
+
+Earlier versions stored data in MySQL. To copy it into Firebase, keeping every id, put the old database's `DB_HOST`, `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` in `.env` and run:
+
+```bash
+php artisan firebase:import --connection=mysql
+php artisan firebase:reconcile
+```
+
+The DB_* values are not used for anything else and can be removed afterwards.
+
+## Data consistency
+
+The Realtime Database has no SQL transactions. Each money or status change (claim, walk-in sale, payout, job status, clock-in) is written as one atomic multi-path update while a short lock at `/locks/...` keeps a double submit from running twice. `php artisan firebase:reconcile` checks the data; with `--fix` (scheduled daily) it repairs id counters, references to deleted records and commission amounts, and reports payouts or claims that need a person to look at them.
+
 ## Updating
 
 ```bash
@@ -124,14 +140,13 @@ php artisan down
 git pull
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
-php artisan migrate --force
 php artisan config:cache && php artisan route:cache && php artisan view:cache
 php artisan up
 ```
 
 ## Backups
 
-Back up the MySQL database daily and `storage/app/private/uploads` (student files, kept for the retention period). `storage/app/public/gcash` holds the GCash QR image.
+Back up the Realtime Database daily: enable automated backups in the Firebase console (Blaze plan), or export the JSON from the console (Realtime Database → ⋮ → Export JSON). Also back up `storage/app/private/uploads` (student files, kept for the retention period) and keep a copy of the service account key somewhere safe. `storage/app/public/gcash` holds the GCash QR image.
 
 ## Post-deploy check
 
