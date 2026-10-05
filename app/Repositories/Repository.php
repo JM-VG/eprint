@@ -202,6 +202,32 @@ abstract class Repository
     }
 
     /**
+     * Write a complete record exactly as given (used by the importer to
+     * preserve original ids and timestamps).
+     *
+     * @param  array<string, mixed>  $record
+     * @return array<string, mixed>
+     */
+    public function put(array $record): array
+    {
+        if (! isset($record['id'])) {
+            throw new \InvalidArgumentException("A record written to [{$this->table()}] must have an id.");
+        }
+
+        $this->database->set($this->path((string) $record['id']), $record);
+
+        return $record;
+    }
+
+    /**
+     * Force the id counter so imported ids are never handed out again.
+     */
+    public function setNextId(int $value): void
+    {
+        $this->database->set('counters/'.$this->table(), $value);
+    }
+
+    /**
      * Delete every record in the table and reset its id counter.
      */
     public function truncate(): void
