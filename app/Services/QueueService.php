@@ -38,10 +38,7 @@ class QueueService
      */
     public function pendingCounts(): array
     {
-        $counts = PrintJob::where('status', JobStatus::Pending)
-            ->selectRaw('location_id, COUNT(*) as total')
-            ->groupBy('location_id')
-            ->pluck('total', 'location_id');
+        $counts = PrintJob::where('status', JobStatus::Pending)->pluck('location_id')->countBy();
 
         return Location::orderBy('id')->pluck('id')
             ->mapWithKeys(fn (int $id) => [$id => (int) ($counts[$id] ?? 0)])
