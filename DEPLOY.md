@@ -48,6 +48,7 @@ Upload the service account key to `storage/app/firebase/service-account.json` (i
 
 ```bash
 php artisan firebase:ping --write  # checks the credentials and the database URL
+php artisan firebase:rules --deploy --publish   # browsers may read /public only; enables the live banner and queue badge
 php artisan db:seed --force      # locations, admin, sample price list (prices 0), default settings
 php artisan storage:link         # public disk, used for the GCash QR image
 php artisan config:cache
@@ -152,7 +153,7 @@ Back up the Realtime Database daily: enable automated backups in the Firebase co
 
 - [ ] `/login` loads over HTTPS and shows the availability banner.
 - [ ] The admin can sign in, and a test student can sign up and be approved.
-- [ ] A staff member can clock in, and the banner shows the location as open within 15 s.
+- [ ] A staff member can clock in, and the banner shows the location as open right away (within 15 s if live updates are blocked by the rules).
 - [ ] A PDF upload shows the page count and estimate, and the file opens from the queue.
 - [ ] `php artisan schedule:list` shows `stations:close-idle` (every minute) and `files:cleanup` (02:00).
 - [ ] `APP_ENV=production` and `APP_DEBUG=false`.

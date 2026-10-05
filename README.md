@@ -11,7 +11,7 @@ Online print request and sales system for the MinSU printing room. It serves two
 - Get a notification when a job is ready for pickup.
 
 **Staff**
-- Clock in at a location; students see which printing rooms are open (banner refreshed every 15 s).
+- Clock in at a location; students see which printing rooms are open (the banner updates live).
 - Work the queue per location: accept (final page count and total), reject with a reason, start printing, mark ready.
 - Claim at pickup with cash or GCash (unique reference number). The sale and commission are recorded together in one atomic write.
 - Record walk-in sales with line items and sheets used; submit own jobs.
@@ -25,7 +25,7 @@ Online print request and sales system for the MinSU printing room. It serves two
 ## Stack
 
 Laravel 12, PHP 8.2+, Firebase Realtime Database, Blade + Breeze (Tailwind), Pest, Pint.
-Packages: `smalot/pdfparser` (PDF page count) and `simplesoftwareio/simple-qrcode` (claim QR). The front end uses plain JavaScript `fetch` polling, with no WebSockets.
+Packages: `smalot/pdfparser` (PDF page count) and `simplesoftwareio/simple-qrcode` (claim QR). The availability banner and the queue badge stream live from the Realtime Database (`EventSource`, no Firebase SDK) and fall back to `fetch` polling every 15 s; other widgets poll.
 
 ## Local setup
 
@@ -59,6 +59,7 @@ All data is in the Firebase Realtime Database, set up in `config/firebase.php` (
 - The Eloquent models use the `rtdb` connection (`app/Realtime`), which evaluates queries in PHP over the repositories in `app/Repositories`. Joins, `GROUP BY`, raw SQL and correlated `whereHas` are not supported; load related models and group collections instead.
 - `app/Realtime/Database/TableSchema.php` keeps what the SQL schema enforced: column types and defaults, unique columns and what happens to child records on delete.
 - Money and status changes go through `App\Realtime\Atomic`: one atomic multi-path write while a `/locks/...` lock is held.
+- `/public/availability` and `/public/queue` hold non-personal summaries (rooms open, pending jobs per location), republished after every change; `database.rules.json` lets browsers read only `/public`.
 
 | Command | What it does |
 | --- | --- |
@@ -66,6 +67,7 @@ All data is in the Firebase Realtime Database, set up in `config/firebase.php` (
 | `firebase:seed [--fresh]` | Seeds locations, the admin, the price list and settings (`--fresh` clears everything first). |
 | `firebase:import --connection=mysql [--table=...]` | One-time copy of an old MySQL E-Print database into Firebase, keeping ids. |
 | `firebase:reconcile [--fix]` | Consistency check (scheduled daily with `--fix`). |
+| `firebase:rules [--deploy] [--publish]` | Shows `database.rules.json`; `--deploy` installs it, `--publish` writes the `/public` summaries. |
 
 Tests run against an in-memory fake of the Realtime Database, so they need no credentials or network.
 

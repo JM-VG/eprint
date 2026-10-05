@@ -44,11 +44,28 @@ class BatchingDatabaseClient implements DatabaseClient
      */
     private ?array $reads = null;
 
+    /**
+     * Called with the written paths after each batch is committed.
+     *
+     * @var list<callable(list<string>): void>
+     */
+    private array $committed = [];
+
     public function __construct(private DatabaseClient $inner) {}
 
     public function inner(): DatabaseClient
     {
         return $this->inner;
+    }
+
+    /**
+     * Run the callback with the written paths after every committed batch.
+     *
+     * @param  callable(list<string>): void  $callback
+     */
+    public function afterCommit(callable $callback): void
+    {
+        $this->committed[] = $callback;
     }
 
     public function enableReadCache(): void
@@ -112,6 +129,10 @@ class BatchingDatabaseClient implements DatabaseClient
         if ($paths !== []) {
             $this->forget(array_keys($paths));
             $this->inner->update('', $paths);
+
+            foreach ($this->committed as $callback) {
+                $callback(array_map('strval', array_keys($paths)));
+            }
         }
     }
 

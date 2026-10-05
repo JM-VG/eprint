@@ -1,8 +1,10 @@
 @inject('availability', 'App\Services\AvailabilityService')
 
-{{-- Rendered server-side, then refreshed from GET /api/availability every 15 s (resources/js/availability.js). --}}
+{{-- Rendered server-side, then kept live from the Realtime Database (/public/availability), or by
+     polling GET /api/availability every 15 s when streaming is unavailable (resources/js/availability.js). --}}
 <div id="availability-banner"
      data-endpoint="{{ route('api.availability') }}"
+     @if ($realtimeUrl = \App\Realtime\PublicProjections::url(\App\Realtime\PublicProjections::AVAILABILITY)) data-realtime-url="{{ $realtimeUrl }}" @endif
      class="w-full bg-gray-800 text-gray-100 text-sm"
      role="status"
      aria-live="polite">

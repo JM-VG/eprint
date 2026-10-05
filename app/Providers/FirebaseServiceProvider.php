@@ -11,6 +11,7 @@ use App\Firebase\ServiceAccountTokenProvider;
 use App\Realtime\Database\RealtimeConnection;
 use App\Realtime\Database\TableSchema;
 use App\Realtime\Locks;
+use App\Realtime\PublicProjections;
 use App\Repositories\RepositoryRegistry;
 use App\Repositories\SettingRepository;
 use App\Repositories\UserRepository;
@@ -51,6 +52,11 @@ class FirebaseServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->bind(ServiceAccountTokenProvider::class, fn ($app) => new ServiceAccountTokenProvider(
+            credentials: $app['config']->get('firebase.credentials'),
+            useCache: $app['config']->get('firebase.cache_tokens', true) && ! $app->runningUnitTests(),
+        ));
+
         // Repositories (and so Eloquent) write through one batching client, so
         // a write batch sees its own changes and commits them atomically.
         $this->app->singleton(BatchingDatabaseClient::class, function ($app) {
@@ -71,6 +77,12 @@ class FirebaseServiceProvider extends ServiceProvider
 
         $this->app->singleton(Locks::class, fn ($app) => new Locks($app->make(BatchingDatabaseClient::class)));
         $this->app->singleton(TableSchema::class);
+        $this->app->singleton(PublicProjections::class);
+
+        // Keep the public summaries the browser subscribes to in step with the data.
+        $this->app->afterResolving(BatchingDatabaseClient::class, function (BatchingDatabaseClient $client, $app) {
+            $client->afterCommit(fn (array $paths) => $app->make(PublicProjections::class)->handle($paths));
+        });
         $this->app->singleton(RepositoryRegistry::class);
 
         $this->app->resolving('db', function (DatabaseManager $db, $app) {

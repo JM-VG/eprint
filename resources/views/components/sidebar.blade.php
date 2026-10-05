@@ -39,6 +39,8 @@
 
                         @if ($item['key'] === 'queue')
                             <span data-queue-badge data-endpoint="{{ route('api.queue-count') }}" hidden
+                                  @if ($realtimeUrl = \App\Realtime\PublicProjections::url(\App\Realtime\PublicProjections::QUEUE)) data-realtime-url="{{ $realtimeUrl }}" @endif
+                                  @if ($stationId = app(\App\Services\StationService::class)->current($user)?->location_id) data-location-id="{{ $stationId }}" @endif
                                   aria-label="{{ __('pending jobs') }}"
                                   class="absolute -right-1 -top-1 min-w-5 rounded-full bg-brand-orange px-1.5 text-center text-xs text-white"></span>
                         @endif

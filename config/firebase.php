@@ -70,6 +70,11 @@ return [
     |
     */
 
+    // Subscribe the availability banner and queue badge to /public in the
+    // browser (needs database.rules.json deployed: php artisan firebase:rules --deploy).
+    // They fall back to polling every 15 s when the stream is unavailable.
+    'realtime_ui' => (bool) env('FIREBASE_REALTIME_UI', true),
+
     'web' => [
         'api_key' => env('FIREBASE_API_KEY', 'AIzaSyBK7_M0Ip-Ogsx2QlOHaiOZXcxPvKmOk1s'),
         'auth_domain' => env('FIREBASE_AUTH_DOMAIN', 'e-print-e1185.firebaseapp.com'),
