@@ -40,7 +40,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => env('AUTH_PROVIDER', 'users'),
         ],
     ],
 
@@ -65,6 +65,12 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        // Reads users from the Firebase Realtime Database. Enable it with
+        // AUTH_PROVIDER=rtdb once the application stores users in Firebase.
+        'rtdb' => [
+            'driver' => 'rtdb',
         ],
 
         // 'users' => [

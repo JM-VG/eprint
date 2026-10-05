@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Auth\RealtimeUserProvider;
 use App\Firebase\ArrayDatabaseClient;
 use App\Firebase\DatabaseClient;
 use App\Firebase\FirebaseDatabaseClient;
 use App\Firebase\ServiceAccountTokenProvider;
+use App\Repositories\UserRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use RuntimeException;
 
@@ -39,5 +42,12 @@ class FirebaseServiceProvider extends ServiceProvider
                 maxTransactionRetries: (int) ($config['transaction_retries'] ?? 5),
             );
         });
+    }
+
+    public function boot(): void
+    {
+        Auth::provider('rtdb', fn ($app) => new RealtimeUserProvider(
+            $app->make(UserRepository::class),
+        ));
     }
 }
