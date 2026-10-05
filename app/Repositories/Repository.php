@@ -117,4 +117,117 @@ abstract class Repository
     {
         return array_values(array_filter($this->all(), $callback));
     }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function firstWhere(string $column, mixed $value): ?array
+    {
+        foreach ($this->all() as $record) {
+            if ($this->matches($record, $column, $value)) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function whereColumn(string $column, mixed $value): array
+    {
+        return $this->where(fn (array $record) => $this->matches($record, $column, $value));
+    }
+
+    /**
+     * @param  array<int, mixed>  $values
+     * @return array<int, array<string, mixed>>
+     */
+    public function whereIn(string $column, array $values): array
+    {
+        return $this->where(function (array $record) use ($column, $values) {
+            foreach ($values as $value) {
+                if ($this->matches($record, $column, $value)) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function whereNull(string $column): array
+    {
+        return $this->where(fn (array $record) => ($record[$column] ?? null) === null);
+    }
+
+    public function count(): int
+    {
+        return count($this->all());
+    }
+
+    public function sum(string $column): float
+    {
+        $total = 0.0;
+
+        foreach ($this->all() as $record) {
+            $total += (float) ($record[$column] ?? 0);
+        }
+
+        return $total;
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    public function pluck(string $value, ?string $key = null): array
+    {
+        $result = [];
+
+        foreach ($this->all() as $record) {
+            if ($key === null) {
+                $result[] = $record[$value] ?? null;
+
+                continue;
+            }
+
+            $result[$record[$key] ?? ''] = $record[$value] ?? null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Delete every record in the table and reset its id counter.
+     */
+    public function truncate(): void
+    {
+        $this->database->remove($this->table());
+        $this->database->remove('counters/'.$this->table());
+    }
+
+    /**
+     * Compare a record column with a value, treating numeric strings and
+     * integers as equal so form input and stored ids line up.
+     *
+     * @param  array<string, mixed>  $record
+     */
+    protected function matches(array $record, string $column, mixed $value): bool
+    {
+        $actual = $record[$column] ?? null;
+
+        if ($value === null) {
+            return $actual === null;
+        }
+
+        if (is_numeric($actual) && is_numeric($value)) {
+            return (float) $actual === (float) $value;
+        }
+
+        return $actual === $value;
+    }
 }
