@@ -14,7 +14,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Models\WalkinItem;
 use App\Notifications\JobClaimed;
-use Illuminate\Support\Facades\DB;
+use App\Realtime\Atomic;
 
 /**
  * Records money: claims at pickup and (P6-02) walk-in sales.
@@ -25,11 +25,12 @@ class CommissionService
     public function __construct(private JobStatusService $statuses) {}
 
     /**
-     * Claim a ready job: mark it claimed and paid, create the sale (and GCash payment) in one transaction.
+     * Claim a ready job: mark it claimed and paid, create the sale (and GCash payment) in one atomic write.
+     * The job is locked so a double submit cannot claim it twice.
      */
     public function claim(PrintJob $job, User $receiver, PaymentMethod $method, ?string $referenceNo = null): Sale
     {
-        $sale = DB::transaction(function () use ($job, $receiver, $method, $referenceNo) {
+        $sale = Atomic::run(function () use ($job, $receiver, $method, $referenceNo) {
             $amount = number_format((float) ($job->final_total ?? $job->estimated_total ?? 0), 2, '.', '');
             $note = $method === PaymentMethod::Gcash ? "Paid by GCash, ref {$referenceNo}" : 'Paid in cash';
 
@@ -60,7 +61,7 @@ class CommissionService
             }
 
             return $sale;
-        });
+        }, ["print_jobs/{$job->id}", ...$this->referenceLocks($method, $referenceNo)]);
 
         $job = $sale->printJob->load(['user', 'location']);
         $receiver->notify(new JobClaimed($job, $sale, forStaff: true));
@@ -79,7 +80,7 @@ class CommissionService
      */
     public function recordWalkin(User $staff, int $locationId, array $items, PaymentMethod $method, ?string $referenceNo = null): Sale
     {
-        return DB::transaction(function () use ($staff, $locationId, $items, $method, $referenceNo) {
+        return Atomic::run(function () use ($staff, $locationId, $items, $method, $referenceNo) {
             $total = array_reduce($items, fn (string $sum, array $item) => bcadd($sum, (string) $item['amount'], 2), '0.00');
 
             $sale = $this->recordSale(
@@ -113,7 +114,7 @@ class CommissionService
             }
 
             return $sale;
-        });
+        }, $this->referenceLocks($method, $referenceNo));
     }
 
     /**
@@ -129,6 +130,18 @@ class CommissionService
     public function currentRate(): string
     {
         return number_format((float) Setting::read('commission_rate', '0'), 2, '.', '');
+    }
+
+    /**
+     * A GCash reference number may only be used once; lock it while it is recorded.
+     *
+     * @return list<string>
+     */
+    private function referenceLocks(PaymentMethod $method, ?string $referenceNo): array
+    {
+        return $method === PaymentMethod::Gcash && filled($referenceNo)
+            ? ['gcash_references/'.sha1(trim($referenceNo))]
+            : [];
     }
 
     /**

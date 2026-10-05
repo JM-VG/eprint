@@ -64,6 +64,7 @@ Other settings (commission rate, GCash, retention days, Student ID pattern) are 
 | --- | --- | --- |
 | `stations:close-idle` | every minute | Closes stations with no heartbeat for 5 minutes (`timeout`). |
 | `files:cleanup` | daily 02:00 | Deletes uploaded files of finished jobs older than the retention period; records are kept. |
+| `firebase:reconcile --fix` | daily 03:00 | Checks Realtime Database consistency: repairs id counters, references to deleted records and commission amounts; reports payout totals and claimed jobs without a sale. |
 | `sales:import-legacy {file} [--dry-run]` | manual, one time | Imports walk-in sales from the old system (see DEPLOY.md). |
 
 Scheduling lives in `routes/console.php`.

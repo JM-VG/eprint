@@ -5,10 +5,10 @@ namespace App\Services;
 use App\Models\CommissionPayout;
 use App\Models\Sale;
 use App\Models\User;
+use App\Realtime\Atomic;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class PayoutService
@@ -29,15 +29,15 @@ class PayoutService
     }
 
     /**
-     * Pay out every unpaid sale in the range: create the payout and link the sales, in one transaction.
-     * The sales rows are locked so a double submit cannot pay the same sale twice.
+     * Pay out every unpaid sale in the range: create the payout and link the sales in one atomic write.
+     * The staff member's payouts are locked so a double submit cannot pay the same sale twice.
      *
      * @throws RuntimeException when there is nothing unpaid in the range
      */
     public function create(User $staff, User $admin, string $from, string $to, ?string $notes = null): CommissionPayout
     {
-        return DB::transaction(function () use ($staff, $admin, $from, $to, $notes) {
-            $sales = $this->unpaid($staff, $from, $to)->lockForUpdate()->get(['id', 'commission_amount']);
+        return Atomic::run(function () use ($staff, $admin, $from, $to, $notes) {
+            $sales = $this->unpaid($staff, $from, $to)->get(['id', 'commission_amount']);
 
             $amount = $this->total($sales);
 
@@ -58,7 +58,7 @@ class PayoutService
             Sale::whereIn('id', $sales->pluck('id'))->whereNull('payout_id')->update(['payout_id' => $payout->id]);
 
             return $payout;
-        });
+        }, ["payouts/{$staff->id}"]);
     }
 
     /**

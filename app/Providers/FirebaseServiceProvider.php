@@ -10,6 +10,7 @@ use App\Firebase\FirebaseDatabaseClient;
 use App\Firebase\ServiceAccountTokenProvider;
 use App\Realtime\Database\RealtimeConnection;
 use App\Realtime\Database\TableSchema;
+use App\Realtime\Locks;
 use App\Repositories\RepositoryRegistry;
 use App\Repositories\SettingRepository;
 use App\Repositories\UserRepository;
@@ -57,6 +58,7 @@ class FirebaseServiceProvider extends ServiceProvider
             ->needs(DatabaseClient::class)
             ->give(fn ($app) => $app->make(BatchingDatabaseClient::class));
 
+        $this->app->singleton(Locks::class, fn ($app) => new Locks($app->make(BatchingDatabaseClient::class)));
         $this->app->singleton(TableSchema::class);
         $this->app->singleton(RepositoryRegistry::class);
 

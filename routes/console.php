@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 Schedule::command('stations:close-idle')->everyMinute()->withoutOverlapping();
 
 Schedule::command('files:cleanup')->dailyAt('02:00')->withoutOverlapping();
+
+// Repair derived values (counters, dangling references, commission amounts) and report the rest.
+Schedule::command('firebase:reconcile --fix')->dailyAt('03:00')->withoutOverlapping();
