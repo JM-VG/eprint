@@ -25,7 +25,7 @@ return [
 
     'project_id' => env('FIREBASE_PROJECT_ID', 'e-print-e1185'),
 
-    'database_url' => env('FIREBASE_DATABASE_URL', 'https://e-print-e1185-default-rtdb.firebaseio.com'),
+    'database_url' => env('FIREBASE_DATABASE_URL', 'https://e-print-e1185-default-rtdb.asia-southeast1.firebasedatabase.app'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +70,7 @@ return [
     'web' => [
         'api_key' => env('FIREBASE_API_KEY', 'AIzaSyBK7_M0Ip-Ogsx2QlOHaiOZXcxPvKmOk1s'),
         'auth_domain' => env('FIREBASE_AUTH_DOMAIN', 'e-print-e1185.firebaseapp.com'),
-        'database_url' => env('FIREBASE_DATABASE_URL', 'https://e-print-e1185-default-rtdb.firebaseio.com'),
+        'database_url' => env('FIREBASE_DATABASE_URL', 'https://e-print-e1185-default-rtdb.asia-southeast1.firebasedatabase.app'),
         'project_id' => env('FIREBASE_PROJECT_ID', 'e-print-e1185'),
         'storage_bucket' => env('FIREBASE_STORAGE_BUCKET', 'e-print-e1185.firebasestorage.app'),
         'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID', '990026970317'),
