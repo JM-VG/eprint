@@ -32,6 +32,11 @@ return [
 
     'connections' => [
 
+        'rtdb' => [
+            'driver' => 'rtdb',
+            'database' => env('FIREBASE_PROJECT_ID', 'e-print-e1185'),
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),

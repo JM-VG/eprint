@@ -30,9 +30,13 @@ class SettingRepository
         return ($value !== null && $value !== '') ? (string) $value : $default;
     }
 
+    /**
+     * The Realtime Database does not store nulls, so an empty setting is kept
+     * as "" (which get() treats as unset) to keep its key present.
+     */
     public function set(string $key, ?string $value): void
     {
-        $this->database->set('settings/'.$key, $value);
+        $this->database->set('settings/'.$key, $value ?? '');
     }
 
     /**
@@ -40,7 +44,7 @@ class SettingRepository
      */
     public function setMany(array $values): void
     {
-        $this->database->update('settings', $values);
+        $this->database->update('settings', array_map(fn ($value) => $value ?? '', $values));
     }
 
     public function forget(string $key): void

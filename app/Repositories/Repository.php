@@ -32,13 +32,24 @@ abstract class Repository
     }
 
     /**
+     * Reserve the next integer id without writing a record.
+     */
+    public function allocateId(): int
+    {
+        return $this->nextId();
+    }
+
+    /**
+     * Every record keyed by id. Integer keyed nodes may come back from the
+     * REST API as JSON arrays with null holes; those holes are dropped.
+     *
      * @return array<array-key, array<string, mixed>>
      */
     public function all(): array
     {
         $data = $this->database->get($this->path());
 
-        return is_array($data) ? $data : [];
+        return is_array($data) ? array_filter($data, 'is_array') : [];
     }
 
     /**
@@ -217,6 +228,27 @@ abstract class Repository
         $this->database->set($this->path((string) $record['id']), $record);
 
         return $record;
+    }
+
+    /**
+     * Merge columns into a record exactly as given, without touching
+     * timestamps or checking that it exists.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    public function patch(int|string $id, array $values): void
+    {
+        if ($values !== []) {
+            $this->database->update($this->path((string) $id), $values);
+        }
+    }
+
+    /**
+     * Delete a record without checking that it exists first.
+     */
+    public function remove(int|string $id): void
+    {
+        $this->database->remove($this->path((string) $id));
     }
 
     /**

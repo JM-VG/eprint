@@ -33,6 +33,15 @@ class ArrayDatabaseClient implements DatabaseClient
 
     public function set(string $path, mixed $value): void
     {
+        // Like the Realtime Database, null children and empty objects are not stored.
+        $value = $this->prune($value);
+
+        if ($value === null) {
+            $this->remove($path);
+
+            return;
+        }
+
         $segments = $this->segments($path);
 
         if ($segments === []) {
@@ -114,6 +123,25 @@ class ArrayDatabaseClient implements DatabaseClient
         $this->set($path, $value);
 
         return $value;
+    }
+
+    private function prune(mixed $value): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        foreach ($value as $key => $child) {
+            $child = $this->prune($child);
+
+            if ($child === null) {
+                unset($value[$key]);
+            } else {
+                $value[$key] = $child;
+            }
+        }
+
+        return $value === [] ? null : $value;
     }
 
     /**
