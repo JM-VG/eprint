@@ -1,0 +1,2 @@
+# Place the Firebase service account JSON here as service-account.json.
+# This directory is gitignored so credentials are never committed.

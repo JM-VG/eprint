@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Realtime\Model;
 use Database\Factories\CommissionPayoutFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

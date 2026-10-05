@@ -26,7 +26,7 @@ class CommissionReportService
             'all_time' => $this->sum($staff),
             'unpaid' => $this->sum($staff, fn (Builder $q) => $q->whereNull('payout_id')),
             'jobs_handled' => JobLog::where('user_id', $staff->id)
-                ->whereNotIn('print_job_id', PrintJob::select('id')->where('user_id', $staff->id))
+                ->whereNotIn('print_job_id', PrintJob::where('user_id', $staff->id)->pluck('id'))
                 ->distinct()
                 ->count('print_job_id'),
         ];

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Realtime\Model;
 use Database\Factories\SettingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
@@ -13,6 +13,17 @@ class Setting extends Model
     use HasFactory;
 
     public const CACHE_KEY = 'eprint.settings';
+
+    /**
+     * Settings are a key/value map at "/settings/{key}" in the Realtime Database.
+     */
+    protected $primaryKey = 'key';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'key',

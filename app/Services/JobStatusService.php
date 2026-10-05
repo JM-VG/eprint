@@ -8,7 +8,7 @@ use App\Models\JobLog;
 use App\Models\PrintJob;
 use App\Models\User;
 use App\Notifications\JobReady;
-use Illuminate\Support\Facades\DB;
+use App\Realtime\Atomic;
 use InvalidArgumentException;
 
 /**
@@ -40,8 +40,10 @@ class JobStatusService
      */
     public function transition(PrintJob $job, JobStatus $to, User $actor, ?string $note = null, array $attributes = []): PrintJob
     {
-        $job = DB::transaction(function () use ($job, $to, $actor, $note, $attributes) {
-            $job = PrintJob::whereKey($job->id)->lockForUpdate()->firstOrFail();
+        // The job is locked and re-read so two staff cannot move it at the same time;
+        // the status change and its log entry are written together.
+        $job = Atomic::run(function () use ($job, $to, $actor, $note, $attributes) {
+            $job = PrintJob::whereKey($job->id)->firstOrFail();
             $from = $job->status;
 
             if (! $this->canTransition($from, $to)) {
@@ -59,7 +61,7 @@ class JobStatusService
             ]);
 
             return $job;
-        });
+        }, ["print_jobs/{$job->id}"]);
 
         if ($to === JobStatus::Ready) {
             $job->user->notify(new JobReady($job));

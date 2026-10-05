@@ -23,9 +23,9 @@ class AvailabilityService
     public function locations(): array
     {
         $staffCounts = $this->activeSessions()
-            ->selectRaw('location_id, COUNT(DISTINCT user_id) as staff_count')
+            ->get(['location_id', 'user_id'])
             ->groupBy('location_id')
-            ->pluck('staff_count', 'location_id');
+            ->map(fn ($sessions) => $sessions->pluck('user_id')->unique()->count());
 
         return Location::orderBy('id')->get()->map(fn (Location $location) => [
             'id' => $location->id,

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class QueueCountController extends Controller
 {
     /**
-     * Pending job counts for the sidebar badge, polled every 15 seconds.
+     * Pending job counts for the sidebar badge, polled every 15 seconds when it cannot stream /public/queue.
      */
     public function __invoke(Request $request, QueueService $queue, StationService $stations): JsonResponse
     {

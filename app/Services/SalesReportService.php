@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\PrintJob;
 use App\Models\Sale;
 use App\Models\WalkinItem;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -51,13 +52,11 @@ class SalesReportService
      */
     public function totals(array $filters): array
     {
-        $sales = $this->query($filters)->select('sales.id', 'sales.amount', 'sales.commission_amount')->get();
+        $sales = $this->query($filters)->get(['id', 'print_job_id', 'amount', 'commission_amount']);
 
-        $jobSheets = (int) $this->query($filters)
-            ->join('print_jobs', 'print_jobs.id', '=', 'sales.print_job_id')
-            ->sum('print_jobs.sheets_used');
-
-        $walkinSheets = (int) WalkinItem::whereIn('sale_id', $this->query($filters)->select('sales.id'))->sum('sheets_used');
+        $jobIds = $sales->pluck('print_job_id')->filter()->unique()->values();
+        $jobSheets = $jobIds->isEmpty() ? 0 : (int) PrintJob::whereIn('id', $jobIds)->sum('sheets_used');
+        $walkinSheets = $sales->isEmpty() ? 0 : (int) WalkinItem::whereIn('sale_id', $sales->pluck('id'))->sum('sheets_used');
 
         return [
             'amount' => $sales->reduce(fn (string $sum, Sale $s) => bcadd($sum, (string) $s->amount, 2), '0.00'),

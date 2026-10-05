@@ -11,9 +11,9 @@ Online print request and sales system for the MinSU printing room. It serves two
 - Get a notification when a job is ready for pickup.
 
 **Staff**
-- Clock in at a location; students see which printing rooms are open (banner refreshed every 15 s).
+- Clock in at a location; students see which printing rooms are open (the banner updates live).
 - Work the queue per location: accept (final page count and total), reject with a reason, start printing, mark ready.
-- Claim at pickup with cash or GCash (unique reference number). The sale and commission are recorded in one transaction.
+- Claim at pickup with cash or GCash (unique reference number). The sale and commission are recorded together in one atomic write.
 - Record walk-in sales with line items and sheets used; submit own jobs.
 - Commission dashboard: today, this week, this month, all time, unpaid balance, own sales list.
 
@@ -24,28 +24,52 @@ Online print request and sales system for the MinSU printing room. It serves two
 
 ## Stack
 
-Laravel 12, PHP 8.2+, MySQL 8, Blade + Breeze (Tailwind), Pest, Pint.
-Packages: `smalot/pdfparser` (PDF page count) and `simplesoftwareio/simple-qrcode` (claim QR). The front end uses plain JavaScript `fetch` polling, with no WebSockets.
+Laravel 12, PHP 8.2+, Firebase Realtime Database, Blade + Breeze (Tailwind), Pest, Pint.
+Packages: `smalot/pdfparser` (PDF page count) and `simplesoftwareio/simple-qrcode` (claim QR). The availability banner and the queue badge stream live from the Realtime Database (`EventSource`, no Firebase SDK) and fall back to `fetch` polling every 15 s; other widgets poll.
 
 ## Local setup
 
-Requirements: PHP 8.2+ with `pdo_mysql`, `pdo_sqlite`, `fileinfo`, `mbstring`, `openssl`, `zip`, `gd` and `bcmath`, plus Composer, Node 18+ and MySQL 8. Laragon works out of the box.
+Requirements: PHP 8.2+ with `openssl`, `curl`, `fileinfo`, `mbstring`, `zip`, `gd` and `bcmath`, plus Composer and Node 18+. Laragon works out of the box. There is no SQL database: data lives in the Firebase Realtime Database.
 
 ```bash
 composer install
 npm install && npm run build
 cp .env.example .env
 php artisan key:generate
-# create a MySQL database named "eprint" and set the DB_* values in .env
+# save the Firebase service account key as storage/app/firebase/service-account.json
 # set ADMIN_USERNAME / ADMIN_PASSWORD in .env
-php artisan migrate --seed
+php artisan firebase:ping --write
+php artisan db:seed
 php artisan storage:link
 php artisan serve
 ```
 
+There are no migrations any more: `php artisan migrate --seed` from older versions is replaced by `php artisan db:seed` (or `php artisan firebase:seed --fresh` to wipe the Realtime Database first).
+
 Seeding creates the two locations, the admin account from `ADMIN_USERNAME`/`ADMIN_PASSWORD`, a sample price list (all prices 0; set real prices under **Price List**) and default settings. With `APP_ENV=local` it also creates demo accounts, all with the password `password`: staff `staff1` and `staff2`, and students `MMC2024-00001` and `MMC2024-00002` (approved) and `MMC2024-00003` (pending).
 
 Run the scheduler locally with `php artisan schedule:work`.
+
+## Data storage
+
+All data is in the Firebase Realtime Database, set up in `config/firebase.php` (`FIREBASE_DATABASE_URL`, `FIREBASE_CREDENTIALS`). The server signs in with the service account; the browser only reads public, aggregate data.
+
+- Each table is a node of flat records, `/{table}/{id}` (e.g. `/print_jobs/42`), with integer ids from `/counters/{table}` so the old ids and foreign keys still work. Dates are ISO-8601 strings, money is a two-decimal string, enums are their value.
+- Settings are a key/value map at `/settings/{key}`; notifications are at `/notifications/{uuid}`.
+- The Eloquent models use the `rtdb` connection (`app/Realtime`), which evaluates queries in PHP over the repositories in `app/Repositories`. Joins, `GROUP BY`, raw SQL and correlated `whereHas` are not supported; load related models and group collections instead.
+- `app/Realtime/Database/TableSchema.php` keeps what the SQL schema enforced: column types and defaults, unique columns and what happens to child records on delete.
+- Money and status changes go through `App\Realtime\Atomic`: one atomic multi-path write while a `/locks/...` lock is held.
+- `/public/availability` and `/public/queue` hold non-personal summaries (rooms open, pending jobs per location), republished after every change; `database.rules.json` lets browsers read only `/public`.
+
+| Command | What it does |
+| --- | --- |
+| `firebase:ping [--write]` | Checks the credentials and the database URL. |
+| `firebase:seed [--fresh]` | Seeds locations, the admin, the price list and settings (`--fresh` clears everything first). |
+| `firebase:import --connection=mysql [--table=...]` | One-time copy of an old MySQL E-Print database into Firebase, keeping ids. |
+| `firebase:reconcile [--fix]` | Consistency check (scheduled daily with `--fix`). |
+| `firebase:rules [--deploy] [--publish]` | Shows `database.rules.json`; `--deploy` installs it, `--publish` writes the `/public` summaries. |
+
+Tests run against an in-memory fake of the Realtime Database, so they need no credentials or network.
 
 ## Configuration
 
@@ -64,6 +88,7 @@ Other settings (commission rate, GCash, retention days, Student ID pattern) are 
 | --- | --- | --- |
 | `stations:close-idle` | every minute | Closes stations with no heartbeat for 5 minutes (`timeout`). |
 | `files:cleanup` | daily 02:00 | Deletes uploaded files of finished jobs older than the retention period; records are kept. |
+| `firebase:reconcile --fix` | daily 03:00 | Checks Realtime Database consistency: repairs id counters, references to deleted records and commission amounts; reports payout totals and claimed jobs without a sale. |
 | `sales:import-legacy {file} [--dry-run]` | manual, one time | Imports walk-in sales from the old system (see DEPLOY.md). |
 
 Scheduling lives in `routes/console.php`.

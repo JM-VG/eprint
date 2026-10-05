@@ -29,3 +29,6 @@ Thumbs.db
 /MASTER_PROMPT.md
 /STATE.md
 /loop-*.md
+
+# Firebase service account credentials (never commit)
+/storage/app/firebase/*.json

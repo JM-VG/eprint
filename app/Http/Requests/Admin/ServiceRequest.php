@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Service;
+use App\Rules\RecordUnique;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +23,7 @@ class ServiceRequest extends FormRequest
             'type' => ['required', Rule::in(['document', 'photo'])],
             'name' => [
                 'required', 'string', 'max:100',
-                Rule::unique(Service::class, 'name')
+                RecordUnique::of(Service::class, 'name')
                     ->where('type', $this->input('type'))
                     ->ignore($this->route('service')),
             ],

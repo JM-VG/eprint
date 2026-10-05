@@ -6,7 +6,7 @@ use App\Enums\CloseReason;
 use App\Models\Location;
 use App\Models\StationSession;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Realtime\Atomic;
 
 class StationService
 {
@@ -24,19 +24,17 @@ class StationService
 
     /**
      * Open a station session at the location. Returns null when the user is already clocked in.
-     * The user row is locked so a double submit cannot open two sessions.
+     * The user's station is locked so a double submit cannot open two sessions.
      */
     public function clockIn(User $user, Location $location): ?StationSession
     {
-        return DB::transaction(function () use ($user, $location) {
-            User::whereKey($user->id)->lockForUpdate()->first();
-
+        return Atomic::run(function () use ($user, $location) {
             if ($this->current($user)) {
                 return null;
             }
 
             return $this->open($user, $location);
-        });
+        }, ["stations/{$user->id}"]);
     }
 
     /**
@@ -44,13 +42,11 @@ class StationService
      */
     public function switchTo(User $user, Location $location): StationSession
     {
-        return DB::transaction(function () use ($user, $location) {
-            User::whereKey($user->id)->lockForUpdate()->first();
-
+        return Atomic::run(function () use ($user, $location) {
             $this->close($user, CloseReason::Switch);
 
             return $this->open($user, $location);
-        });
+        }, ["stations/{$user->id}"]);
     }
 
     /**

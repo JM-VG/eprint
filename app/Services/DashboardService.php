@@ -73,10 +73,7 @@ class DashboardService
     public function admin(): array
     {
         $today = Sale::where('created_at', '>=', now()->startOfDay())->get(['amount', 'commission_amount']);
-        $jobs = PrintJob::whereIn('status', QueueService::ACTIVE)
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+        $jobs = $this->countByStatus(PrintJob::whereIn('status', QueueService::ACTIVE));
 
         $since = now()->subDays(29)->startOfDay();
         $period = Sale::where('created_at', '>=', $since)->get(['amount', 'commission_amount', 'source', 'payment_method']);
@@ -166,9 +163,18 @@ class DashboardService
      */
     private function statusCounts(Builder $jobs): array
     {
-        $counts = $jobs->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $counts = $this->countByStatus($jobs);
 
         return collect(JobStatus::cases())->mapWithKeys(fn (JobStatus $s) => [$s->value => (int) ($counts[$s->value] ?? 0)])->all();
+    }
+
+    /**
+     * @param  Builder<PrintJob>  $jobs
+     * @return array<string, int> status value => number of jobs
+     */
+    private function countByStatus(Builder $jobs): array
+    {
+        return $jobs->get(['status'])->countBy(fn (PrintJob $job) => $job->status->value)->all();
     }
 
     private function money(float|int|string|null $value): string

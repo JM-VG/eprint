@@ -7,7 +7,6 @@ use App\Enums\UserStatus;
 use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\NewSignup;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class StudentRegistrationService
@@ -32,7 +31,7 @@ class StudentRegistrationService
      */
     public function register(array $data): User
     {
-        $student = DB::transaction(fn () => User::create([
+        $student = User::create([
             'student_id' => $data['student_id'],
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -40,7 +39,7 @@ class StudentRegistrationService
             'password' => $data['password'],
             'role' => Role::Student,
             'status' => UserStatus::Pending,
-        ]));
+        ]);
 
         $admins = User::where('role', Role::Admin)->where('status', UserStatus::Approved)->get();
         Notification::send($admins, new NewSignup($student));

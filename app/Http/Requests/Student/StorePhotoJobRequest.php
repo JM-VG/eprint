@@ -4,8 +4,8 @@ namespace App\Http\Requests\Student;
 
 use App\Models\Location;
 use App\Models\Service;
+use App\Rules\RecordExists;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StorePhotoJobRequest extends FormRequest
 {
@@ -20,10 +20,10 @@ class StorePhotoJobRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_id' => ['required', 'integer', Rule::exists(Location::class, 'id')],
+            'location_id' => ['required', 'integer', RecordExists::of(Location::class, 'id')],
             'service_id' => [
                 'required', 'integer',
-                Rule::exists(Service::class, 'id')->where('type', 'photo')->where('is_active', true),
+                RecordExists::of(Service::class, 'id')->where('type', 'photo')->where('is_active', true),
             ],
             'file' => ['required', 'file', 'max:'.StoreDocumentJobRequest::MAX_UPLOAD_KB, 'mimes:jpg,jpeg,png'],
             'sets' => ['required', 'integer', 'min:1', 'max:100'],

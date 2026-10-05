@@ -10,8 +10,8 @@ use App\Models\JobLog;
 use App\Models\PrintJob;
 use App\Models\Service;
 use App\Models\User;
+use App\Realtime\Atomic;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -129,7 +129,7 @@ class JobSubmissionService
             throw ValidationException::withMessages(['page_range' => $e->getMessage()]);
         }
 
-        DB::transaction(function () use ($job, $user, $data, $service, $isPhoto, $pageRange, $copies, $sets, $estimate) {
+        Atomic::run(function () use ($job, $user, $data, $service, $isPhoto, $pageRange, $copies, $sets, $estimate) {
             $job->forceFill([
                 'location_id' => $data['location_id'],
                 'service_id' => $service->id,
@@ -149,7 +149,7 @@ class JobSubmissionService
                 'to_status' => $job->status,
                 'note' => 'Edited by owner',
             ]);
-        });
+        }, ["print_jobs/{$job->id}"]);
 
         return $job;
     }
@@ -161,19 +161,19 @@ class JobSubmissionService
     {
         $files = array_filter([$job->stored_path, $job->pdf_path]);
 
-        DB::transaction(fn () => $job->delete());
+        Atomic::run(fn () => $job->delete(), ["print_jobs/{$job->id}"]);
 
         Storage::disk(self::DISK)->delete($files);
     }
 
     /**
-     * Create the pending job with its claim code and first job log in one transaction.
+     * Create the pending job with its claim code and first job log in one atomic write.
      *
      * @param  array<string, mixed>  $attributes
      */
     private function createPendingJob(User $user, UploadedFile $file, array $attributes): PrintJob
     {
-        return DB::transaction(function () use ($user, $file, $attributes) {
+        return Atomic::run(function () use ($user, $file, $attributes) {
             $job = new PrintJob;
             $job->forceFill($attributes + [
                 'claim_code' => $this->claimCodes->generate(),

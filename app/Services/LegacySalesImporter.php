@@ -11,8 +11,9 @@ use App\Models\Sale;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\WalkinItem;
+use App\Realtime\Atomic;
+use App\Rules\RecordExists;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use RuntimeException;
@@ -92,7 +93,7 @@ class LegacySalesImporter
     }
 
     /**
-     * Save valid rows in one transaction.
+     * Save valid rows in one atomic write.
      *
      * Re-runs are safe: for each (officer, location, amount, minute, payment method) the rows are
      * matched against sales that already existed before this run, so a file imported twice adds
@@ -103,7 +104,7 @@ class LegacySalesImporter
      */
     public function import(array $rows): array
     {
-        return DB::transaction(function () use ($rows) {
+        return Atomic::run(function () use ($rows) {
             $imported = 0;
             $skipped = 0;
             $alreadyThere = [];
@@ -186,9 +187,9 @@ class LegacySalesImporter
     {
         $validator = Validator::make($row, [
             'date' => ['required', 'date_format:Y-m-d H:i'],
-            'officer' => ['required', Rule::exists(User::class, 'username')->whereIn('role', [Role::Staff->value, Role::Admin->value])],
-            'location' => ['required', Rule::exists(Location::class, 'slug')],
-            'service' => ['nullable', Rule::exists(Service::class, 'name')],
+            'officer' => ['required', RecordExists::of(User::class, 'username')->whereIn('role', [Role::Staff->value, Role::Admin->value])],
+            'location' => ['required', RecordExists::of(Location::class, 'slug')],
+            'service' => ['nullable', RecordExists::of(Service::class, 'name')],
             'quantity' => ['required', 'integer', 'min:1'],
             'sheets_used' => ['required', 'integer', 'min:0'],
             'amount' => ['required', 'numeric', 'decimal:0,2', 'min:0'],
