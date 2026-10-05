@@ -3,8 +3,8 @@
 namespace App\Http\Requests\Staff;
 
 use App\Models\Location;
+use App\Rules\RecordExists;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ClockInRequest extends FormRequest
 {
@@ -19,7 +19,7 @@ class ClockInRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_id' => ['required', 'integer', Rule::exists(Location::class, 'id')],
+            'location_id' => ['required', 'integer', RecordExists::of(Location::class, 'id')],
         ];
     }
 

@@ -5,6 +5,8 @@ namespace App\Http\Requests\Staff;
 use App\Enums\PaymentMethod;
 use App\Models\GcashPayment;
 use App\Models\Service;
+use App\Rules\RecordExists;
+use App\Rules\RecordUnique;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,7 +31,7 @@ class WalkinSaleRequest extends FormRequest
     {
         return [
             'items' => ['required', 'array', 'min:1', 'max:20'],
-            'items.*.service_id' => ['required', 'integer', Rule::exists(Service::class, 'id')->where('is_active', true)],
+            'items.*.service_id' => ['required', 'integer', RecordExists::of(Service::class, 'id')->where('is_active', true)],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:10000'],
             'items.*.sheets_used' => ['required', 'integer', 'min:0', 'max:100000'],
             'items.*.amount' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:999999.99'],
@@ -39,7 +41,7 @@ class WalkinSaleRequest extends FormRequest
                 'required_if:payment_method,'.PaymentMethod::Gcash->value,
                 'string',
                 'max:50',
-                Rule::unique(GcashPayment::class, 'reference_no'),
+                RecordUnique::of(GcashPayment::class, 'reference_no'),
             ],
         ];
     }

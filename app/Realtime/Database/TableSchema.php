@@ -146,6 +146,23 @@ class TableSchema
                 'data' => 'string', 'read_at' => 'datetime',
             ] + self::TIMESTAMPS,
         ],
+
+        // Framework tables, used only if SESSION_DRIVER / CACHE_STORE are set to
+        // "database" (file or redis are recommended for the Realtime Database).
+        'sessions' => [
+            'columns' => [
+                'id' => 'string', 'user_id' => 'int', 'ip_address' => 'string', 'user_agent' => 'string',
+                'payload' => 'string', 'last_activity' => 'int',
+            ],
+        ],
+        'cache' => [
+            'columns' => ['id' => 'int', 'key' => 'string', 'value' => 'string', 'expiration' => 'int'],
+            'unique' => ['key'],
+        ],
+        'cache_locks' => [
+            'columns' => ['id' => 'int', 'key' => 'string', 'owner' => 'string', 'expiration' => 'int'],
+            'unique' => ['key'],
+        ],
     ];
 
     public function has(string $table): bool

@@ -5,6 +5,8 @@ namespace App\Http\Requests\Staff;
 use App\Enums\PaymentMethod;
 use App\Models\GcashPayment;
 use App\Models\PrintJob;
+use App\Rules\RecordExists;
+use App\Rules\RecordUnique;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,14 +31,14 @@ class ClaimRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', Rule::exists(PrintJob::class, 'claim_code')],
+            'code' => ['required', 'string', RecordExists::of(PrintJob::class, 'claim_code')],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'reference_no' => [
                 'nullable',
                 'required_if:payment_method,'.PaymentMethod::Gcash->value,
                 'string',
                 'max:50',
-                Rule::unique(GcashPayment::class, 'reference_no'),
+                RecordUnique::of(GcashPayment::class, 'reference_no'),
             ],
         ];
     }

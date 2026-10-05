@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\Role;
 use App\Models\User;
+use App\Rules\RecordUnique;
 use App\Services\StudentRegistrationService;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,7 +38,7 @@ class StaffRequest extends FormRequest
                 'min:3',
                 'max:50',
                 'regex:/^[A-Za-z0-9._-]+$/',
-                Rule::unique(User::class, 'username')->ignore($target),
+                RecordUnique::of(User::class, 'username')->ignore($target),
                 $this->notAStudentId(...),
             ],
             'first_name' => ['required', 'string', 'max:100'],

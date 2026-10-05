@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Rules\RecordUnique;
 use App\Services\StudentRegistrationService;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StudentRegisterRequest extends FormRequest
@@ -33,7 +33,7 @@ class StudentRegisterRequest extends FormRequest
                 'string',
                 'max:50',
                 'regex:'.app(StudentRegistrationService::class)->studentIdRegex(),
-                Rule::unique(User::class, 'student_id'),
+                RecordUnique::of(User::class, 'student_id'),
             ],
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],

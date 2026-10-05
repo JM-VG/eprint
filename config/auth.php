@@ -40,7 +40,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => env('AUTH_PROVIDER', 'users'),
+            'provider' => env('AUTH_PROVIDER', 'rtdb'),
         ],
     ],
 
@@ -57,26 +57,22 @@ return [
     | providers to represent the model / table. These providers may then
     | be assigned to any extra authentication guards you have defined.
     |
-    | Supported: "database", "eloquent"
+    | Supported: "rtdb", "eloquent"
     |
     */
 
     'providers' => [
+        // Reads users from the Firebase Realtime Database (the default).
+        'rtdb' => [
+            'driver' => 'rtdb',
+        ],
+
+        // The User model through Eloquent (also stored in the Realtime Database).
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
         ],
 
-        // Reads users from the Firebase Realtime Database. Enable it with
-        // AUTH_PROVIDER=rtdb once the application stores users in Firebase.
-        'rtdb' => [
-            'driver' => 'rtdb',
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -100,6 +96,8 @@ return [
 
     'passwords' => [
         'users' => [
+            // Eloquent users (stored in the Realtime Database through the rtdb
+            // connection), so reset notifications go to App\Models\User.
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,

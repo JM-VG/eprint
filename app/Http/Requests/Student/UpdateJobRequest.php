@@ -5,10 +5,10 @@ namespace App\Http\Requests\Student;
 use App\Models\Location;
 use App\Models\PrintJob;
 use App\Models\Service;
+use App\Rules\RecordExists;
 use App\Services\PriceCalculator;
 use Closure;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateJobRequest extends FormRequest
 {
@@ -29,10 +29,10 @@ class UpdateJobRequest extends FormRequest
         $type = $job->service->type;
 
         $rules = [
-            'location_id' => ['required', 'integer', Rule::exists(Location::class, 'id')],
+            'location_id' => ['required', 'integer', RecordExists::of(Location::class, 'id')],
             'service_id' => [
                 'required', 'integer',
-                Rule::exists(Service::class, 'id')->where('type', $type)->where('is_active', true),
+                RecordExists::of(Service::class, 'id')->where('type', $type)->where('is_active', true),
             ],
             'notes' => ['nullable', 'string', 'max:500'],
         ];

@@ -2,94 +2,50 @@
 
 namespace App\Auth;
 
-use App\Enums\Role;
-use App\Enums\UserStatus;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Support\Carbon;
-use JsonSerializable;
+use App\Models\User;
 
 /**
- * A user record loaded from the Firebase Realtime Database.
+ * The authenticated user as loaded by the "rtdb" user provider: a User model
+ * built straight from its Realtime Database record.
  *
- * Keeps the attribute surface the application expects (enum casts, dates)
- * without depending on Eloquent.
+ * Being a User, it keeps the enum/date casts, relations, notifications and
+ * policies; it reports the User morph class so notifications and other
+ * polymorphic records point at the same type.
  */
-class RealtimeUser implements AuthenticatableContract, JsonSerializable
+class RealtimeUser extends User
 {
-    use Authenticatable;
+    protected $table = 'users';
 
     /**
-     * @param  array<string, mixed>  $attributes
+     * @param  array<string, mixed>  $attributes  a stored user record
      */
-    public function __construct(protected array $attributes) {}
-
-    public function __get(string $name): mixed
+    public function __construct(array $attributes = [])
     {
-        return $this->attribute($name);
+        parent::__construct();
+
+        if ($attributes !== []) {
+            $this->setRawAttributes($attributes, true);
+            $this->exists = true;
+        }
     }
 
-    public function __isset(string $name): bool
+    public function getForeignKey()
     {
-        return ($this->attributes[$name] ?? null) !== null;
+        return 'user_id';
     }
 
-    public function attribute(string $name): mixed
+    public function getMorphClass()
     {
-        return $this->cast($name, $this->attributes[$name] ?? null);
+        return User::class;
     }
 
     /**
+     * The raw stored attributes.
+     *
      * @return array<string, mixed>
      */
     public function attributes(): array
     {
-        return $this->attributes;
-    }
-
-    public function getAuthPasswordName(): string
-    {
-        return 'password';
-    }
-
-    public function getKeyName(): string
-    {
-        return 'id';
-    }
-
-    public function getKey(): mixed
-    {
-        return $this->attributes['id'] ?? null;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(): array
-    {
-        return $this->attributes;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->attributes;
-    }
-
-    private function cast(string $name, mixed $value): mixed
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        return match ($name) {
-            'role' => Role::from((string) $value),
-            'status' => UserStatus::from((string) $value),
-            'must_change_password' => (bool) $value,
-            'approved_at' => Carbon::parse($value),
-            default => $value,
-        };
+        return $this->getAttributes();
     }
 }
